@@ -74,6 +74,17 @@ struct server_msg
 	struct list_content list_row;
 };
 
+struct client_block_list
+{
+	int C_id;
+	char C_ip[32];
+	char ip1[32];
+	char ip2[32];
+	char ip3[32];
+	char ip4[32];
+	char buffer[1024];
+}*client_ptr[5];
+
 
 /**
  * main function
