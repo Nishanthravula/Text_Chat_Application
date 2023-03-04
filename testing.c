@@ -109,9 +109,9 @@ int main(int argc, char **argv)
     int port = atoi(argv[2]);
 
     /* Start server or client based on mode */
-    if (mode == 's') {
+    if (*argv[1]=='s') {
         start_server(port);
-    } else if (mode == 'c') {
+    } else if (*argv[1]=='c') {
         start_client(port);
     } else {
         printf("Invalid mode '%c'. Please use 's' for server or 'c' for client.\n", mode);
