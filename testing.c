@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "../include/logger.h"
 #include "../include/global.h"
-#include <unistd.h>
+
 #include <sys/socket.h>
 #include <strings.h>
 #include <string.h>
@@ -10,12 +10,14 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <ifaddrs.h>
-#include <sys/un.h>
+#include <unistd.h>
 #include <errno.h>
+
 
 #define TRUE 1
 #define MSG_SIZE 256
@@ -71,116 +73,45 @@ struct server_msg
 };
 
 
+/**
+ * main function
+ *
+ * @param  argc Number of arguments
+ * @param  argv The argument list
+ * @return 0 EXIT_SUCCESS
+ */
 int main(int argc, char **argv)
 {
-    cse4589_init_log(argv[2]);
-    
-    FILE *file_pointer = fopen(LOGFILE, "w");
-    fclose(file_pointer);
+	/*Init. Logger*/
+	cse4589_init_log(argv[2]);
 
-	if(argc != 3) {
+	/*Clear LOGFILE*/
+	fclose(fopen(LOGFILE, "w"));
+
+	/*Start Here*/
+	struct list_content hosts[6];
+	if(argc != 3) 
+	{
 		printf("Usage:%s [port]\n", argv[0]);
 		exit(-1);
 	}
-    if(*argv[1]=='c')
-    {
-        Client(strtol(argv[2]))
-    }
-    else if(*argv[1]=='s')
-    {
-        Server(strtol(argv[2]))
-    }
-    else
-    {
-        exit(-1);
-    }
+	if(*argv[1]=='s')
+	{
+		serverSide(strtol(argv[2]));
+	}
+	else if(*argv[1]=='c')
+	{
+		clientside(strtol(argv[2]));
+	}
+	else
+	{
+		exit(-1);
+	}
+	return 0;
 }
+//client side
 
-
-// void Client(int c_port)
-// {
-
-//     int b=SOCKET_BINDER(c_port);
-//     int user = 0;
-//     int sock_server = 0;
-//     int s;
-//     int i=0;
-//     struct client_mssg rec_data;
-//     client_head_socket=0;
-//     client_sock_index = 0;
-//     if (bind_port == 0) 
-//     {
-//         fprintf(stderr, "Error: Port binding failed\n");
-//         exit(EXIT_FAILURE);
-//     }
-
-//     file_des();
-
-//     for(;;)
-//     {
-//         fflush(stdout);
-//         file_des();
-//         FD_SET(server,&client_master_list);
-//         client_head_socket = sock_server;
-
-//         for (int i = 0; i < sizeof(client_master_list) / sizeof(client_master_list[0]); i++) 
-//         {
-//             client_watch_list[i] = client_master_list[i];
-//         }
-//         s=select(client_head_socket + 1, &client_watch_list, NULL, NULL, NULL);
-//         if(s<0)
-//         {
-//             perror("No proper functioning of select");
-//             exit(EXIT_FAILURE);
-//         }
-
-//         if(s>0)
-//         {
-//             while(client_sock_index<=client_head_socket)
-//             {
-//                 if(FD_ISSET(client_sock_index,&client_watch_list))
-//                 {
-//                     if(client_sock_index == STDIN)
-//                     {
-//                         char *message = (char*) malloc(sizeof(char)*MSG_SIZE);
-//                         memset(message,'\0',MSG_SIZE);
-//                         if (fgets(msg, MSG_SIZE-1, stdin) == NULL) 
-//                         {
-//                             exit(-1);
-//                         }
-//                         int length = strlen(message);
-//                         message[length-1] = '\0';
-
-//                         if(strlen(message)=6 && messsage[0]='A' && messsage[1]='U' && messsage[2]='T' && messsage[3]='H' && messsage[4]='O' && messsage[5]='R')
-//                         {
-//                             cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
-// 							cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
-// 							cse4589_print_and_log("[AUTHOR:END]\n");
-//                         }
-//                         else if(strlen(message)=2 && messsage[0]='I' && messsage[1]='P')
-//                         {
-//                             IP();
-//                             cse4589_print_and_log("[IP is successful]\n");
-//                         }
-//                         else if(strlen(message)=4 && messsage[0]='P' && messsage[1]='O' && messsage[2]='R' && messsage[3]='T') 
-//                         {
-//                             PORT();
-//                             cse4589_print_and_log("[PORT is successful]\n");
-//                         }
-//                         else
-//                         {
-//                             exit(-1);
-//                         }
-//                     }
-//                 }
-//             client_sock_index++    
-//             }
-//         }
-
-//     }
-// }
-
-void Client(int client_port)
+void clientside(int client_port)
 {
 	int bind_port=bind_the_socket(client_port);
 	int loggedin=0;//using as bool
@@ -221,6 +152,7 @@ void Client(int client_port)
         if(selret > 0)
         {
             /* Loop through socket descriptors to check which ones are ready */
+
             for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
             {
                 if(FD_ISSET(client_sock_index, &client_watch_list))
@@ -237,18 +169,18 @@ void Client(int client_port)
 
 						//printf("I got: %s(size:%d chars)", msg, strlen(msg));
 
-						if((strcmp(msg,"AUTHOR"))==0)
+						if((strlen(msg)=6 && msg[0]='A' && msg[1]='U' && msg[2]='T' && msg[3]='H' && msg[4]='O' && msg[5]='R'))
 						{
 							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
 							cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
 							cse4589_print_and_log("[AUTHOR:END]\n");
 						}
-						else if((strcmp(msg,"IP"))==0)
+						else if(strlen(msg)=2 && msg[0]='I' && msg[1]='P')
 						{
 							showIP();
 							cse4589_print_and_log("[IP:END]\n");
 						}
-						else if((strcmp(msg,"PORT"))==0)
+						else if(strlen(msg)=4 && msg[0]='P' && msg[1]='O' && msg[2]='R' && msg[3]='T')
 						{
 							getmyport();
 							cse4589_print_and_log("[PORT:END]\n");
@@ -416,10 +348,10 @@ void Client(int client_port)
 	}
 }
 
-
-void Server(int s_port)
+//server side
+void serverSide(int server_port)
 {
-    printf("\n Inside server side with port %d", server_port);
+	printf("\n Inside server side with port %d", server_port);
 	int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
 	struct server_msg server_data;
 	struct list_content send_list;
@@ -699,21 +631,23 @@ fflush(stdout);
     }
 }
 
-
-int SOCKET_BINDER(int port_num)
+int bind_the_socket(int c_port)
 {
-    int k=1
+	struct sockaddr_in my_addrs;
+	fdsocket = socket(AF_INET, SOCK_STREAM, 0);// return socket file descriptor
+    if(fdsocket < 0)
+    {
+       perror("Failed to create socket");
+       return 0;
+    }
 
-    struct addr_of_socket addr;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port(port_num);
-
-    file_descriptor = socket(AF_INET,SOCK_STREAM,0);
-
-    setsockopt(file_descriptor,SOL_SOCKET,SO_REUSEPORT,&optval,sizeof(k));
-
-	if(bind(fdsocket, (struct  sockaddr*) &my_addrs, sizeof(struct sockaddr_in)) == 0)
+    //setting up client socket
+    my_addrs.sin_family=AF_INET;
+    my_addrs.sin_addr.s_addr=INADDR_ANY;
+    my_addrs.sin_port=htons(c_port);
+    int optval=1;
+    setsockopt(fdsocket, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+    if(bind(fdsocket, (struct  sockaddr*) &my_addrs, sizeof(struct sockaddr_in)) == 0)
     {
     	printf("\nclient binded to port correctly\n");
     	return 1;
@@ -724,9 +658,143 @@ int SOCKET_BINDER(int port_num)
     	return 0;
     }
 }
+int connect_to_host(char *server_ip, int server_port, int c_port)
+{
+    int len;
+    struct sockaddr_in remote_server_addr;
 
+    bzero(&remote_server_addr, sizeof(remote_server_addr));
+    remote_server_addr.sin_family = AF_INET;
+    inet_pton(AF_INET, server_ip, &remote_server_addr.sin_addr);//inet_pton - convert IPv4 and IPv6 addresses from text to binary form
+    remote_server_addr.sin_port = htons(server_port);//function converts the unsigned short integer hostshort from host byte order to network byte order.
 
-void IP()
+    if(connect(fdsocket, (struct sockaddr*)&remote_server_addr, sizeof(remote_server_addr)) < 0)
+    {
+        perror("Connect failed");
+    }
+    else{
+    	printf("\nLogged in\n");
+    }
+    return fdsocket;
+}
+
+void sort_list_port()
+{
+	for(int i=0;i<5;i++)
+	{
+		for(int j=0;j<5-i-1;j++)
+		{
+			if(list_ptr[j]->list_port> list_ptr[j+1]->list_port && list_ptr[j+1]->list_id!=0)
+			{
+				//TEMP VARIABLES
+				int tlist_id;
+				char tlist_host_name[40];
+				char tlist_ip[32];
+				int tlist_port;
+				int tfd_socket;
+				int trcv_msg;
+				int tsnd_msg;
+				char tstate[20];
+				
+				//COPING TO TEMP VARIABLES
+				strcpy(tlist_host_name,list_ptr[j]->list_host_name);
+				strcpy(tlist_ip,list_ptr[j]->list_ip);
+				tlist_port=list_ptr[j]->list_port;
+				tfd_socket=list_ptr[j]->fd_socket;
+				trcv_msg=list_ptr[j]->rcv_msg;
+				tsnd_msg=list_ptr[j]->snd_msg;
+				strcpy(tstate,list_ptr[j]->state);
+				//coping j+1 into j
+				strcpy(list_ptr[j]->list_host_name,list_ptr[j+1]->list_host_name);
+				strcpy(list_ptr[j]->list_ip,list_ptr[j+1]->list_ip);
+				list_ptr[j]->list_port=list_ptr[j+1]->list_port;
+				list_ptr[j]->fd_socket=list_ptr[j+1]->fd_socket;
+				list_ptr[j]->rcv_msg=list_ptr[j+1]->rcv_msg;
+				list_ptr[j]->snd_msg=list_ptr[j+1]->snd_msg;
+				strcpy(list_ptr[j]->state,list_ptr[j+1]->state);
+				
+				// coping TEMP into j+1;
+				strcpy(list_ptr[j+1]->list_host_name,tlist_host_name);
+				strcpy(list_ptr[j+1]->list_ip,tlist_ip);
+				list_ptr[j+1]->list_port=tlist_port;
+				list_ptr[j+1]->fd_socket=tfd_socket;
+				list_ptr[j+1]->rcv_msg=trcv_msg;
+				list_ptr[j+1]->snd_msg=tsnd_msg;
+				strcpy(list_ptr[j+1]->state,tstate);
+			}
+		}
+	}
+
+}
+void remove_from_list(int sock_delete)
+{
+	int delete=0;
+	int last=0;
+	for(int i=0;i<5;i++)
+	{
+		if(list_ptr[i]->fd_socket==sock_delete)
+		{	
+			delete=i;
+			break;
+		}
+	}
+	for(int i=delete;i<5;i++)
+	{last=last+1;
+		if(list_ptr[i+1]->list_id!=0)
+		{
+			strcpy(list_ptr[i]->list_host_name,list_ptr[i+1]->list_host_name);
+			strcpy(list_ptr[i]->list_ip,list_ptr[i+1]->list_ip);
+			list_ptr[i]->list_port=list_ptr[i+1]->list_port;
+			list_ptr[i]->fd_socket=list_ptr[i+1]->fd_socket;
+			list_ptr[i]->rcv_msg=list_ptr[i+1]->rcv_msg;
+			list_ptr[i]->snd_msg=list_ptr[i+1]->snd_msg;
+			strcpy(list_ptr[i]->state,list_ptr[i+1]->state);
+		}	
+
+	}
+	list_ptr[last]->list_id=0;
+
+}
+void print_list()
+{
+	for(int i=0;i<5;i++)
+	{
+		if(list_ptr[i]->list_id!=0)
+		{	
+			cse4589_print_and_log("%-5d%-35s%-20s%-8d\n", list_ptr[i]->list_id, list_ptr[i]->list_host_name, list_ptr[i]->list_ip, list_ptr[i]->list_port);
+		}
+	}
+}
+
+void getmyport()
+{
+	struct sockaddr_in portvalue;
+	socklen_t len=sizeof(portvalue);
+	if(getsockname(fdsocket,(struct sockaddr *)&portvalue, &len) == -1)
+	{
+		cse4589_print_and_log("[PORT:ERROR]\n");
+	}
+	else{
+		cse4589_print_and_log("[PORT:SUCCESS]\n");
+		cse4589_print_and_log("PORT:%d\n", ntohs(portvalue.sin_port));
+	}
+}
+
+int isvalidIP(char *ip)
+{
+	struct sockaddr_in temp;
+	int result= inet_pton(AF_INET, ip, &temp.sin_addr);
+	if(result==1)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void showIP()
 {
     const char* google_dns_server = "8.8.8.8";
     int dns_port = 53;
@@ -765,18 +833,4 @@ void IP()
 
     }
     close(sock);
-}
-
-void PORT()
-{
-	struct sockaddr_in portvalue;
-	socklen_t len=sizeof(portvalue);
-	if(getsockname(fdsocket,(struct sockaddr *)&portvalue, &len) == -1)
-	{
-		cse4589_print_and_log("[PORT:ERROR]\n");
-	}
-	else{
-		cse4589_print_and_log("[PORT:SUCCESS]\n");
-		cse4589_print_and_log("PORT:%d\n", ntohs(portvalue.sin_port));
-	}
 }
