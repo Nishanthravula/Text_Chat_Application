@@ -108,11 +108,11 @@ int main(int argc, char **argv)
 	}
 	if(*argv[1]=='s')
 	{
-		serverSide(atoi(argv[2]));
+		serverSide(strtol(argv[2]));
 	}
 	else if(*argv[1]=='c')
 	{
-		clientside(atoi(argv[2]));
+		clientside(strtol(argv[2]));
 	}
 	else
 	{
