@@ -104,16 +104,18 @@ int main(int argc, char **argv)
         printf("Usage: %s <s/c> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    int port = atoi(argv[2]);
-
-    /* Start server or client based on mode */
-    if (*argv[1]=='s') {
-        start_server(port);
-    } else if (*argv[1]=='c') {
-        start_client(port);
-    } else {
-        printf("Invalid mode, Please use 's' for server or 'c' for client.\n");
-        exit(EXIT_FAILURE);
+    if(*argv[1]=='s')
+    {
+	serverside(strtol(argv[2]));
+    }
+    else if(*argv[1]=='c')
+    {
+	clientside(strtol(argv[2]));
+    }
+    else
+    {
+	printf("Exiting the application");
+	exit(-1);
     }
 
 }
