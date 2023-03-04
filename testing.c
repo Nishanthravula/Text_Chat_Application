@@ -138,17 +138,12 @@ void clientside(int client_port)
 	int j=0;
 	struct client_msg data;
 	
-	FD_ZERO(&client_master_list);//Initializes the file descriptor set fdset to have zero bits for all file descriptors. 
-    FD_ZERO(&client_watch_list);
-    FD_SET(STDIN, &client_master_list);
+	file_des();
     client_head_socket=0;
 	while(TRUE)
 	{
 		fflush(stdout);	
-		FD_ZERO(&client_master_list);//Initializes the file descriptor set fdset to have zero bits for all file descriptors. 
-    	FD_ZERO(&client_watch_list);
-
-    	FD_SET(STDIN, &client_master_list);
+		file_des();
 		FD_SET(server, &client_master_list);
 		client_head_socket=server;
 
@@ -844,4 +839,11 @@ void showIP()
 
     }
     close(sock);
+}
+
+file_des()
+{
+	FD_ZERO(&client_master_list); 
+    FD_ZERO(&client_watch_list);
+    FD_SET(STDIN, &client_master_list);
 }
