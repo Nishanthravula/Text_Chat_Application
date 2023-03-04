@@ -94,8 +94,8 @@ struct client_block_list
 int main(int argc, char **argv)
 {
 // /Init. Logger/
-     cse4589_init_log(argv(2]);
-     clear LOGFILE/
+     cse4589_init_log(argv[2]);
+     //clear LOGFILE
      fclose(fopen(LOGFILE, "W"));
     //Start Here
     struct list_content hosts[6];
