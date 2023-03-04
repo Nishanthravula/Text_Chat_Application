@@ -99,27 +99,25 @@ int main(int argc, char **argv)
 	/*Clear LOGFILE*/
 	fclose(fopen(LOGFILE, "w"));
 
-	/*Start Here*/
-	struct list_content hosts[6];
-	if(argc != 3) 
-	{
-		printf("please enter two argument c/s and PORT number");
-		exit(-1);
-	}
-	if(*argv[1]=='s')
-	{
-		serverSide(atoi(argv[2]));
-	}
-	else if(*argv[1]=='c')
-	{
-		clientside(atoi(argv[2]));
-	}
-	else
-	{
-		printf("Exiting the application");
-		exit(-1);
-	}
-	return 0;
+    /* Parse command-line arguments */
+    if (argc != 3) {
+        printf("Usage: %s <s/c> <port>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    char mode = argv[1][0];
+    int port = atoi(argv[2]);
+
+    /* Start server or client based on mode */
+    if (mode == 's') {
+        start_server(port);
+    } else if (mode == 'c') {
+        start_client(port);
+    } else {
+        printf("Invalid mode '%c'. Please use 's' for server or 'c' for client.\n", mode);
+        exit(EXIT_FAILURE);
+    }
+
 }
 //client side
 
