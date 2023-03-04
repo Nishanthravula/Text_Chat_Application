@@ -169,18 +169,18 @@ void clientside(int client_port)
 
 						//printf("I got: %s(size:%d chars)", msg, strlen(msg));
 
-						if((strlen(msg)=6 && msg[0]='A' && msg[1]='U' && msg[2]='T' && msg[3]='H' && msg[4]='O' && msg[5]='R'))
+						if((strcmp(msg,"AUTHOR"))==0)
 						{
 							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
 							cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
 							cse4589_print_and_log("[AUTHOR:END]\n");
 						}
-						else if(strlen(msg)=2 && msg[0]='I' && msg[1]='P')
+						else if((strcmp(msg,"IP"))==0)
 						{
 							showIP();
 							cse4589_print_and_log("[IP:END]\n");
 						}
-						else if(strlen(msg)=4 && msg[0]='P' && msg[1]='O' && msg[2]='R' && msg[3]='T')
+						else if((strcmp(msg,"PORT"))==0)
 						{
 							getmyport();
 							cse4589_print_and_log("[PORT:END]\n");
