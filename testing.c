@@ -106,11 +106,11 @@ int main(int argc, char **argv)
     }
     if(*argv[1]=='s')
     {
-	serverside(strtol(argv[2]));
+	serverside(atoi(argv[2]));
     }
     else if(*argv[1]=='c')
     {
-	clientside(strtol(argv[2]));
+	clientside(atoi(argv[2]));
     }
     else
     {
@@ -792,15 +792,7 @@ void getmyport()
 int isvalidIP(char *ip)
 {
 	struct sockaddr_in temp;
-	int result= inet_pton(AF_INET, ip, &temp.sin_addr);
-	if(result==1)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+        return inet_pton(AF_INET, ip, &temp.sin_addr) == 1;
 }
 
 void showIP()
