@@ -14,9 +14,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <ifaddrs.h>
+//#include <ifaddrs.h>
 #include <unistd.h>
-#include <errno.h>
+//#include <errno.h>
 
 
 #define TRUE 1
@@ -60,6 +60,8 @@ struct list_content
 	char list_ip[32];
 	int list_port;
 	int fd_socket;
+	int rcv_msg;
+	int snd_msg;
 	char state[20];
 
 }*list_ptr[5];
@@ -71,7 +73,16 @@ struct server_msg
 	char info[256];
 	struct list_content list_row;
 };
-
+struct client_block_list
+{
+	int C_id;
+	char C_ip[32];
+	char ip1[32];
+	char ip2[32];
+	char ip3[32];
+	char ip4[32];
+	char buffer[1024];
+}*client_ptr[5];
 
 /**
  * main function
@@ -92,7 +103,7 @@ int main(int argc, char **argv)
 	struct list_content hosts[6];
 	if(argc != 3) 
 	{
-		printf("Usage:%s [port]\n", argv[0]);
+		printf("please enter two argument c/s and PORT number");
 		exit(-1);
 	}
 	if(*argv[1]=='s')
@@ -105,6 +116,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+		printf("Exiting the application");
 		exit(-1);
 	}
 	return 0;
@@ -152,7 +164,6 @@ void clientside(int client_port)
         if(selret > 0)
         {
             /* Loop through socket descriptors to check which ones are ready */
-
             for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
             {
                 if(FD_ISSET(client_sock_index, &client_watch_list))
@@ -455,7 +466,7 @@ fflush(stdout);
 						if((strcmp(cmd, "AUTHOR"))==0)
 						{
 							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
-							cse4589_print_and_log("I, vchincho, have read and understood the course academic integrity policy.\n");
+							cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
 							cse4589_print_and_log("[AUTHOR:END]\n");
 						}
 	                    else if((strcmp(cmd, "IP"))==0)
