@@ -60,8 +60,8 @@ struct list_content
 	char list_ip[32];
 	int list_port;
 	int fd_socket;
-	//int rcv_msg;
-	//int snd_msg;
+	int rcv_msg;
+	int snd_msg;
 	char state[20];
 
 }*list_ptr[5];
@@ -73,7 +73,6 @@ struct server_msg
 	char info[256];
 	struct list_content list_row;
 };
-
 struct client_block_list
 {
 	int C_id;
@@ -84,7 +83,6 @@ struct client_block_list
 	char ip4[32];
 	char buffer[1024];
 }*client_ptr[5];
-
 
 /**
  * main function
@@ -468,7 +466,7 @@ fflush(stdout);
 						if((strcmp(cmd, "AUTHOR"))==0)
 						{
 							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
-							cse4589_print_and_log("I, vchincho, have read and understood the course academic integrity policy.\n");
+							cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
 							cse4589_print_and_log("[AUTHOR:END]\n");
 						}
 	                    else if((strcmp(cmd, "IP"))==0)
