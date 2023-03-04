@@ -104,8 +104,6 @@ int main(int argc, char **argv)
         printf("Usage: %s <s/c> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-
-    char mode = argv[1][0];
     int port = atoi(argv[2]);
 
     /* Start server or client based on mode */
