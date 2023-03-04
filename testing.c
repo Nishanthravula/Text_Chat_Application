@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-#include <sys/un.h>
+// #include <sys/un.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -108,11 +108,11 @@ int main(int argc, char **argv)
 	}
 	if(*argv[1]=='s')
 	{
-		serverSide(strtol(argv[2]));
+		serverSide(atoi(argv[2]));
 	}
 	else if(*argv[1]=='c')
 	{
-		clientside(strtol(argv[2]));
+		clientside(atoi(argv[2]));
 	}
 	else
 	{
@@ -180,7 +180,7 @@ void clientside(int client_port)
 
 						//printf("I got: %s(size:%d chars)", msg, strlen(msg));
 
-						if(len(msg)=6 && msg[0]='A' && msg[1]='U' && msg[2]='T' && msg[3]='H' && msg[4]='O' && msg[5]='R')
+						if((strcmp(msg,"AUTHOR"))==0)
 						{
 							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
 							cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
