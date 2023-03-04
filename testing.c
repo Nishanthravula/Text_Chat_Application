@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     } else if (*argv[1]=='c') {
         start_client(port);
     } else {
-        printf("Invalid mode '%c'. Please use 's' for server or 'c' for client.\n", mode);
+        printf("Invalid mode, Please use 's' for server or 'c' for client.\n");
         exit(EXIT_FAILURE);
     }
 
