@@ -137,9 +137,9 @@ void clientside(int client_port)
 	int selret;
 	int j=0;
 	struct client_msg data;
-	
 	file_des();
     client_head_socket=0;
+	client_sock_index=0;
 	while(TRUE)
 	{
 		fflush(stdout);	
@@ -159,7 +159,7 @@ void clientside(int client_port)
         if(selret > 0)
         {
             /* Loop through socket descriptors to check which ones are ready */
-            for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
+            while(client_sock_index<=client_head_socket)
             {
                 if(FD_ISSET(client_sock_index, &client_watch_list))
                 {
@@ -349,6 +349,7 @@ void clientside(int client_port)
                     } 
                     fflush(stdout);	
                 }
+				client_sock_index++
             }
         }	
 	}
