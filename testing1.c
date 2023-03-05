@@ -503,7 +503,7 @@ fflush(stdout);
 
 	                    if(fdaccept >= 0)
 	                    {
-							printf("Accepted")
+							printf("Accepted");
 	                    }
 						else
 						{
@@ -525,21 +525,21 @@ fflush(stdout);
 	                    printf("\nhost name is:-%s", host);
 	                    printf("\nPort number is:-%d", ntohs(client_addr.sin_port));
 	                    /*Add blocking information into the available structure*/
-	                    // int n=0;
+	                    int n=0;
 						// while((client_ptr[n]->C_id)!=0)
                         // {
                         // 	n++;
                         // }
-						for(int n=0;;(client_ptr[n]->C_id)!=0;n++);
+						for(n=0;(client_ptr[n]->C_id)!=0;n++);
 						client_ptr[n]->C_id=n+1;
 						strcpy(client_ptr[n]->C_ip,ip);
                      	/*Add new client information to the list*/
-                        // int m=0;
+                        int m=0;
                         // while((list_ptr[m]->list_id)!=0)
                         // {
                         // 	m++;
                         // }
-						for(int m=0;;(list_ptr[m]->list_id)!=0;m++);
+						for(m=0;(list_ptr[m]->list_id)!=0;m++);
                         list_ptr[m]->list_id=m+1;
                         list_ptr[m]->list_port=ntohs(client_addr.sin_port);
                         list_ptr[m]->fd_socket=fdaccept;
