@@ -833,8 +833,8 @@ void showIP()
 	}
     struct sockaddr_in name;
     socklen_t namelen = sizeof(name);
-    err1 = getsockname(sock, (struct sockaddr*) &name, &namelen);
-    if(err1<0)
+    err = getsockname(sock, (struct sockaddr*) &name, &namelen);
+    if(err<0)
 	{
 		perror("Getting socket name error");
 		close(sock);
@@ -861,7 +861,7 @@ void showIP()
     else
     {
         cse4589_print_and_log("[IP:SUCCESS]\n");
-        cse4589_print_and_log("IP:%s\n", ip_str);
+        cse4589_print_and_log("IP:%s\n", buffer);
     }
     close(sock);
 }
@@ -872,3 +872,8 @@ file_des()
     FD_ZERO(&client_watch_list);
     FD_SET(STDIN, &client_master_list);
 }
+
+// bool req(int err1)
+// {
+// 	return err1<0;
+// }
