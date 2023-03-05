@@ -105,20 +105,20 @@ int main(int argc, char **argv)
 	struct list_content hosts[6];
 	if(argc != 3) 
 	{
-		printf("please enter two argument c/s and PORT number");
 		exit(-1);
 	}
-	if(*argv[1]=='s')
+	if(*argv[1]=='c')
+	{
+		clientside(atoi(argv[2]));
+		
+	}
+	else if(*argv[1]=='s')
 	{
 		serverSide(atoi(argv[2]));
 	}
-	else if(*argv[1]=='c')
-	{
-		clientside((atoi(argv[2])));
-	}
 	else
 	{
-		printf("Exiting the application");
+		//Exiting the application
 		exit(-1);
 	}
 	return 0;
@@ -332,13 +332,8 @@ void clientside(int client_port)
 	                   
 						if(recv(server, &srcv, sizeof(srcv), 0) >= 0)
 						{
-							if(strcmp(srcv.cmd,"MSG")==0)
-							{	// format("msg from:%s\n[msg]:%s\n",client-ip,msg);
-								cse4589_print_and_log("[RECEIVED:SUCCESS]\n");
-								cse4589_print_and_log("msg from:%s\n[msg]:%s\n",srcv.sender_ip,srcv.info);
-								cse4589_print_and_log("[RECEIVED:END]\n");
-							}
-							else if(strcmp(srcv.cmd,"LIST")==0)
+						
+							if(strcmp(srcv.cmd,"LIST")==0)
 							{	
 								cse4589_print_and_log("%-5d%-35s%-20s%-8d\n",srcv.list_row.list_id,srcv.list_row.list_host_name,srcv.list_row.list_ip,srcv.list_row.list_port);
 							}
@@ -350,19 +345,7 @@ void clientside(int client_port)
 							{	
 								cse4589_print_and_log("[LIST:END]\n");
 							}
-							else if(strcmp(srcv.cmd,"LOGLISTOVER")==0)
-							{	
-								cse4589_print_and_log("[LOGIN:END]\n");
-							}
-							else if(strcmp(srcv.cmd,"MSG_SENT")==0)
-							{	
-								cse4589_print_and_log("[SEND:SUCCESS]\n");
-								cse4589_print_and_log("[SEND:END]\n");
-							}
-							else if(strcmp(srcv.cmd,"MSG_SENT_FAIL")==0)
-							{	cse4589_print_and_log("[SEND:ERROR]\n");
-								cse4589_print_and_log("[SEND:END]\n");
-							}
+							
 							
 							fflush(stdout);//there will be no waiting for sending message
 						}
@@ -621,20 +604,20 @@ fflush(stdout);
 	                            fflush(stdout);	
 								
 	                    	}
-	                    	else if((strcmp(rcv_data.cmd,"LOGOUT"))==0)
-	                    	{
-	                    		//search list for senders ip based on current socket
-								for(int i=0;i<5;i++)
-								{
-									if(list_ptr[i]->fd_socket==sock_index)
-									{	
-										strcpy(list_ptr[i]->state,"logged-out");
-										close(sock_index);
-										FD_CLR(sock_index, &master_list);
-										sort_list_port();
-									}	
-								}
-	                    	}
+	                    	// else if((strcmp(rcv_data.cmd,"LOGOUT"))==0)
+	                    	// {
+	                    	// 	//search list for senders ip based on current socket
+							// 	for(int i=0;i<5;i++)
+							// 	{
+							// 		if(list_ptr[i]->fd_socket==sock_index)
+							// 		{	
+							// 			strcpy(list_ptr[i]->state,"logged-out");
+							// 			close(sock_index);
+							// 			FD_CLR(sock_index, &master_list);
+							// 			sort_list_port();
+							// 		}	
+							// 	}
+	                    	// }
 							fflush(stdout);
 
 	                    }
@@ -701,71 +684,24 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
     return fdsocket;
 }
 
-void sort_list_port()
-{
-	for(int i=0;i<5;i++)
-	{
-		for(int j=0;j<5-i-1;j++)
-		{
-			if(list_ptr[j]->list_port> list_ptr[j+1]->list_port && list_ptr[j+1]->list_id!=0)
-			{
-				//TEMP VARIABLES
-				int tlist_id;
-				char tlist_host_name[40];
-				char tlist_ip[32];
-				int tlist_port;
-				int tfd_socket;
-				int trcv_msg;
-				int tsnd_msg;
-				char tstate[20];
-				
-				//COPING TO TEMP VARIABLES
-				strcpy(tlist_host_name,list_ptr[j]->list_host_name);
-				strcpy(tlist_ip,list_ptr[j]->list_ip);
-				tlist_port=list_ptr[j]->list_port;
-				tfd_socket=list_ptr[j]->fd_socket;
-				trcv_msg=list_ptr[j]->rcv_msg;
-				tsnd_msg=list_ptr[j]->snd_msg;
-				strcpy(tstate,list_ptr[j]->state);
-				//coping j+1 into j
-				strcpy(list_ptr[j]->list_host_name,list_ptr[j+1]->list_host_name);
-				strcpy(list_ptr[j]->list_ip,list_ptr[j+1]->list_ip);
-				list_ptr[j]->list_port=list_ptr[j+1]->list_port;
-				list_ptr[j]->fd_socket=list_ptr[j+1]->fd_socket;
-				list_ptr[j]->rcv_msg=list_ptr[j+1]->rcv_msg;
-				list_ptr[j]->snd_msg=list_ptr[j+1]->snd_msg;
-				strcpy(list_ptr[j]->state,list_ptr[j+1]->state);
-				
-				// coping TEMP into j+1;
-				strcpy(list_ptr[j+1]->list_host_name,tlist_host_name);
-				strcpy(list_ptr[j+1]->list_ip,tlist_ip);
-				list_ptr[j+1]->list_port=tlist_port;
-				list_ptr[j+1]->fd_socket=tfd_socket;
-				list_ptr[j+1]->rcv_msg=trcv_msg;
-				list_ptr[j+1]->snd_msg=tsnd_msg;
-				strcpy(list_ptr[j+1]->state,tstate);
-			}
-		}
-	}
 
+void sort_list_port() {
+    // Bubble sort to sort the list by port number
+    for (int i = 0; i < 5 - 1; i++) {
+        for (int j = 0; j < 5 - i - 1; j++) {
+            if (list_ptr[j]->list_id == 0 || list_ptr[j+1]->list_id == 0) {
+                // One of the elements is empty, so swap is not needed
+                continue;
+            }
+            if (list_ptr[j]->list_port > list_ptr[j+1]->list_port) {
+                // Swap the elements
+                struct client_info* temp = list_ptr[j];
+                list_ptr[j] = list_ptr[j+1];
+                list_ptr[j+1] = temp;
+            }
+        }
+    }
 }
-// void sort_list_port() {
-//     // Bubble sort to sort the list by port number
-//     for (int i = 0; i < 5 - 1; i++) {
-//         for (int j = 0; j < 5 - i - 1; j++) {
-//             if (list_ptr[j]->list_id == 0 || list_ptr[j+1]->list_id == 0) {
-//                 // One of the elements is empty, so swap is not needed
-//                 continue;
-//             }
-//             if (list_ptr[j]->list_port > list_ptr[j+1]->list_port) {
-//                 // Swap the elements
-//                 struct client_info* temp = list_ptr[j];
-//                 list_ptr[j] = list_ptr[j+1];
-//                 list_ptr[j+1] = temp;
-//             }
-//         }
-//     }
-// }
 
 void print_list()
 {
