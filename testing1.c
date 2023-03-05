@@ -180,9 +180,7 @@ void clientside(int client_port)
 
 						if((strcmp(msg,outputs[0]))==0)
 						{
-							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
-							cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a);
-							cse4589_print_and_log("[AUTHOR:END]\n");
+                            author_output();
 						}
 						else if((strcmp(msg,outputs[1]))==0)
 						{
@@ -485,9 +483,7 @@ fflush(stdout);
 						//Process PA1 commands here ...cd 
 						if((strcmp(cmd,outputs[0]))==0)
 						{
-							cse4589_print_and_log("[%s:SUCCESS]\n",outputs[0]);
-							cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a);
-							cse4589_print_and_log("[%s:END]\n",outputs[0]);
+							author_output();
 						}
 	                    else if((strcmp(cmd, outputs[1]))==0)
 	                    {
@@ -846,4 +842,13 @@ file_des()
 	FD_ZERO(&client_master_list); 
     FD_ZERO(&client_watch_list);
     FD_SET(STDIN, &client_master_list);
+}
+
+void author_output()
+{
+	char a[10] = "nravula";
+	char b[10] ="AUTHOR";
+	cse4589_print_and_log("[%s:SUCCESS]\n",b);
+	cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a);
+	cse4589_print_and_log("[%s:END]\n",b);
 }
