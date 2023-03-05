@@ -688,9 +688,11 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
 
 void sort_list_port()
 {
-	for(int i=0;i<5;i++)
+    int i=0;
+    int j=0;
+	while(i<5)
 	{
-		for(int j=0;j<5-i-1;j++)
+		while(j<5-i-1)
 		{
 			if(list_ptr[j]->list_port> list_ptr[j+1]->list_port && list_ptr[j+1]->list_id!=0)
 			{
@@ -730,7 +732,9 @@ void sort_list_port()
 				list_ptr[j+1]->snd_msg=tsnd_msg;
 				strcpy(list_ptr[j+1]->state,tstate);
 			}
+            j++;
 		}
+        i++;
 	}
 
 }
