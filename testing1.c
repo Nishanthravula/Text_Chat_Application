@@ -143,7 +143,7 @@ void clientside(int client_port)
 	struct client_msg data;
 	file_des();
     client_head_socket=0;
-	while(TRUE)
+	for(;;)
 	{
 		fflush(stdout);	
 		file_des();
@@ -424,8 +424,11 @@ void serverSide(int server_port)
     	printf("listening to socket\n");
     }
     /*Initializing list*/
-    for(int i=0;i<5;i++)
+    // for(int i=0;i<5;i++)
+    int i=0;
+    while(i<5)
     {
+        {
     	list_ptr[i]=(struct list_content *)malloc(sizeof(struct list_content));
     	list_ptr[i]->list_id=0; 
     	client_ptr[i]=(struct list_content *)malloc(sizeof(struct client_block_list));
@@ -434,6 +437,8 @@ void serverSide(int server_port)
 		strcpy(client_ptr[i]->ip2,"null");
 		strcpy(client_ptr[i]->ip3,"null");
 		strcpy(client_ptr[i]->ip4,"null");
+        }
+        i++;
     }
 
     /* Zero select FD sets */
@@ -447,7 +452,7 @@ void serverSide(int server_port)
 
     head_socket = server_socket;
 
-    while(TRUE)
+    for(;;)
     {
 fflush(stdout);	
         memcpy(&watch_list, &master_list, sizeof(master_list));
