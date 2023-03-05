@@ -433,12 +433,12 @@ void serverSide(int server_port)
 	// for(int i=0;i<5;i++){
 	int j=0;
 	while(j<5){
-		client_ptr[i]=(struct list_content *)malloc(sizeof(struct client_block_list));
-		client_ptr[i]->C_id=0;
-		strcpy(client_ptr[i]->ip1,"null");
-		strcpy(client_ptr[i]->ip2,"null");
-		strcpy(client_ptr[i]->ip3,"null");
-		strcpy(client_ptr[i]->ip4,"null");
+		client_ptr[j]=(struct list_content *)malloc(sizeof(struct client_block_list));
+		client_ptr[j]->C_id=0;
+		strcpy(client_ptr[j]->ip1,"null");
+		strcpy(client_ptr[j]->ip2,"null");
+		strcpy(client_ptr[j]->ip3,"null");
+		strcpy(client_ptr[j]->ip4,"null");
 		j++;
 	}
 
@@ -819,11 +819,6 @@ void showIP()
         perror("Socket error");
 		return;
     }
-     
-    // memset( &serv, 0, sizeof(serv) );
-    // serv.sin_family = AF_INET;
-    // serv.sin_addr.s_addr = inet_addr( google_dns_server );
-    // serv.sin_port = htons( dns_port );
     int err = connect( sock , (const struct sockaddr*) &serv , sizeof(serv) );
     if(err<0)
 	{
@@ -840,18 +835,6 @@ void showIP()
 		close(sock);
 		return;
 	}
-    // char buffer[100];
-    // const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
-         
-    // if(p == NULL)
-    // {
-	// 	cse4589_print_and_log("[IP:ERROR]\n");
-    // }
-    // else
-    // {
-    // 	cse4589_print_and_log("[IP:SUCCESS]\n");
-    //     cse4589_print_and_log("IP:%s\n",buffer);
-    // }
 	char buffer[100];
     const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
     if(p == NULL)
@@ -872,8 +855,3 @@ file_des()
     FD_ZERO(&client_watch_list);
     FD_SET(STDIN, &client_master_list);
 }
-
-// bool req(int err1)
-// {
-// 	return err1<0;
-// }
