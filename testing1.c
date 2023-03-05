@@ -29,16 +29,16 @@
 #define BUFFER_SIZE 256
 
 
-void clientside(int client_port);
-void serverSide(int server_port);
+void cSide(int client_port);
+void s_Side(int server_port);
 int bind_the_socket(int c_port);
 int connect_to_host(char *server_ip, int server_port, int c_port);
-void getmyport();
-void showIP();
+void myport();
+void IP_Add();
 void print_list();
 void print_stats();
 int isvalidIP(char *ip);
-void sort_list_port();
+void sortinglist_port();
 // void remove_from_list(int sock_delete);
 
 
@@ -74,7 +74,7 @@ struct server_msg
 	char info[256];
 	struct list_content list_row;
 };
-struct client_block_list
+struct client_list
 {
 	int C_id;
 	char C_ip[32];
@@ -109,12 +109,12 @@ int main(int argc, char **argv)
 	}
 	if(*argv[1]=='c')
 	{
-		clientside(atoi(argv[2]));
+		cSide(atoi(argv[2]));
 		
 	}
 	else if(*argv[1]=='s')
 	{
-		serverSide(atoi(argv[2]));
+		s_Side(atoi(argv[2]));
 	}
 	else
 	{
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 }
 //client side
 
-void clientside(int client_port)
+void cSide(int client_port)
 {
 	int bind_port=bind_the_socket(client_port);
 	int loggedin=0;//using as bool
@@ -174,21 +174,18 @@ void clientside(int client_port)
 						/*to get rid of '\n' added by fgets*/
 						int len=strlen(msg);
 						msg[len-1]='\0';
-
-						//printf("I got: %s(size:%d chars)", msg, strlen(msg));
-
 						if((strcmp(msg,outputs[0]))==0)
 						{
 							author_output();
 						}
 						else if((strcmp(msg,outputs[1]))==0)
 						{
-							showIP();
+							IP_Add();
 							cse4589_print_and_log("[%s:END]\n",outputs[1]);
 						}
 						else if((strcmp(msg,outputs[2]))==0)
 						{
-							getmyport();
+							myport();
 							cse4589_print_and_log("[%s:END]\n",outputs[2]);
 						}
 						else if((strcmp(msg,outputs[3]))==0 &&
@@ -358,7 +355,7 @@ void clientside(int client_port)
 }
 
 //server side
-void serverSide(int server_port)
+void s_Side(int server_port)
 {
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	printf("\n Inside server side with port %d", server_port);
@@ -374,7 +371,7 @@ void serverSide(int server_port)
 	fd_set master_list, watch_list;
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
-	fdsocket=server_socket;// bcoz fdsocket is used by getmyport function
+	fdsocket=server_socket;// bcoz fdsocket is used by myport function
     if(server_socket < 0)
     {
 		perror("Cannot create socket");
@@ -416,7 +413,7 @@ void serverSide(int server_port)
 	// for(int i=0;i<5;i++){
 	int j=0;
 	while(j<5){
-		client_ptr[j]=(struct list_content *)malloc(sizeof(struct client_block_list));
+		client_ptr[j]=(struct list_content *)malloc(sizeof(struct client_list));
 		client_ptr[j]->C_id=0;
 		strcpy(client_ptr[j]->ip1,"null");
 		strcpy(client_ptr[j]->ip2,"null");
@@ -476,17 +473,17 @@ fflush(stdout);
 						}
 	                    else if((strcmp(cmd, outputs[1]))==0)
 	                    {
-							showIP();
+							IP_Add();
 							cse4589_print_and_log("[%s:END]\n",outputs[1]);
 	                    }
 	                    else if((strcmp(cmd, outputs[2]))==0)
 	                    {
-							getmyport();
+							myport();
 							cse4589_print_and_log("[%s:END]\n",outputs[2]);
 	                    }
 	                    else if((strcmp(cmd, outputs[3]))==0)
 	                    {
-	                    	sort_list_port();
+	                    	sortinglist_port();
 	                    	cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
 	                        print_list();
 	                        cse4589_print_and_log("[%s:END]\n",outputs[3]);
@@ -545,7 +542,7 @@ fflush(stdout);
                         strcpy(list_ptr[m]->list_host_name,host);
 
                         //send list of currently loged in clients to the client
-                        sort_list_port();
+                        sortinglist_port();
 
 						//INFORMING THAT LOGIN IS OVER
 						strcpy(server_data.cmd,"LOGLISTOVER");
@@ -614,7 +611,7 @@ fflush(stdout);
 							// 			strcpy(list_ptr[i]->state,"logged-out");
 							// 			close(sock_index);
 							// 			FD_CLR(sock_index, &master_list);
-							// 			sort_list_port();
+							// 			sortinglist_port();
 							// 		}	
 							// 	}
 	                    	// }
@@ -685,7 +682,7 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
 }
 
 
-void sort_list_port() {
+void sortinglist_port() {
     // Bubble sort to sort the list by port number
     for (int i = 0; i < 5 - 1; i++) {
         for (int j = 0; j < 5 - i - 1; j++) {
@@ -714,7 +711,7 @@ void print_list()
 	}
 }
 
-void getmyport()
+void myport()
 {
 	const char *outputs[1]={"PORT"};
 	struct sockaddr_in portvalue;
@@ -737,7 +734,7 @@ int isvalidIP(char *ip)
 	return inet_pton(AF_INET, ip, &temp.sin_addr) == 1;
 }
 
-void showIP()
+void IP_Add()
 {
     const char* google_dns_server = "8.8.8.8";
     int dns_port = 53;
