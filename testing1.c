@@ -852,8 +852,9 @@ void showIP()
     // 	cse4589_print_and_log("[IP:SUCCESS]\n");
     //     cse4589_print_and_log("IP:%s\n",buffer);
     // }
-	char ip_str[MAX_IP_STR_LEN];
-    if(inet_ntop(AF_INET, &name.sin_addr, ip_str, sizeof(ip_str)) == NULL)
+	char buffer[100];
+    const char* p = inet_ntop(AF_INET, &name.sin_addr, buffer, 100);
+    if(p == NULL)
     {
         cse4589_print_and_log("[IP:ERROR]\n");
     }
