@@ -39,7 +39,7 @@ void print_list();
 void print_stats();
 int isvalidIP(char *ip);
 void sort_list_port();
-void remove_from_list(int sock_delete);
+// void remove_from_list(int sock_delete);
 
 
 int fdsocket,client_head_socket, client_sock_index;
@@ -127,7 +127,6 @@ int main(int argc, char **argv)
 
 void clientside(int client_port)
 {
-	char a[10] ="nravula";
 	int bind_port=bind_the_socket(client_port);
 	int loggedin=0;//using as bool
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
@@ -180,7 +179,7 @@ void clientside(int client_port)
 
 						if((strcmp(msg,outputs[0]))==0)
 						{
-                            author_output();
+							author_output();
 						}
 						else if((strcmp(msg,outputs[1]))==0)
 						{
@@ -378,7 +377,6 @@ void clientside(int client_port)
 //server side
 void serverSide(int server_port)
 {
-	char a[10] ="nravula";
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	printf("\n Inside server side with port %d", server_port);
 	int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
@@ -425,21 +423,24 @@ void serverSide(int server_port)
     }
     /*Initializing list*/
     // for(int i=0;i<5;i++)
-    int i=0;
-    while(i<5)
+	int i =0;
+	while(i<5)
     {
-        {
     	list_ptr[i]=(struct list_content *)malloc(sizeof(struct list_content));
-    	list_ptr[i]->list_id=0; 
-    	client_ptr[i]=(struct list_content *)malloc(sizeof(struct client_block_list));
+    	list_ptr[i]->list_id=0; 	
+		i++;
+    }
+	// for(int i=0;i<5;i++){
+	int j=0;
+	while(j<5){
+		client_ptr[i]=(struct list_content *)malloc(sizeof(struct client_block_list));
 		client_ptr[i]->C_id=0;
 		strcpy(client_ptr[i]->ip1,"null");
 		strcpy(client_ptr[i]->ip2,"null");
 		strcpy(client_ptr[i]->ip3,"null");
 		strcpy(client_ptr[i]->ip4,"null");
-        }
-        i++;
-    }
+		j++;
+	}
 
     /* Zero select FD sets */
     FD_ZERO(&master_list);//Initializes the file descriptor set fdset to have zero bits for all file descriptors. 
@@ -581,7 +582,7 @@ fflush(stdout);
 	                    if(recv(sock_index, &rcv_data, sizeof(rcv_data), 0) <= 0)// recv returns length of the message on successful completion.
 	                    {
 	                    	/*Remove from the contetn_list as well*/
-	                    	remove_from_list(sock_index);
+	                    	// remove_from_list(sock_index);
 	                        //close(sock_index);
 	                        printf("Remote Host terminated connection!\n");
 	                        /* Remove from watched list */
@@ -644,6 +645,15 @@ fflush(stdout);
     }
 }
 
+
+void author_output()
+{
+	const char *a[2] = {"nravula","AUTHOR"};
+	cse4589_print_and_log("[%s:SUCCESS]\n",a[1]);
+	cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a[0]);
+	cse4589_print_and_log("[%s:END]\n",a[1]);
+}
+
 int bind_the_socket(int c_port)
 {
 	struct sockaddr_in my_addrs;
@@ -693,11 +703,9 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
 
 void sort_list_port()
 {
-    int i=0;
-    int j=0;
-	while(i<5)
+	for(int i=0;i<5;i++)
 	{
-		while(j<5-i-1)
+		for(int j=0;j<5-i-1;j++)
 		{
 			if(list_ptr[j]->list_port> list_ptr[j+1]->list_port && list_ptr[j+1]->list_id!=0)
 			{
@@ -737,41 +745,28 @@ void sort_list_port()
 				list_ptr[j+1]->snd_msg=tsnd_msg;
 				strcpy(list_ptr[j+1]->state,tstate);
 			}
-            j++;
 		}
-        i++;
 	}
 
 }
-void remove_from_list(int sock_delete)
-{
-	int delete=0;
-	int last=0;
-	for(int i=0;i<5;i++)
-	{
-		if(list_ptr[i]->fd_socket==sock_delete)
-		{	
-			delete=i;
-			break;
-		}
-	}
-	for(int i=delete;i<5;i++)
-	{last=last+1;
-		if(list_ptr[i+1]->list_id!=0)
-		{
-			strcpy(list_ptr[i]->list_host_name,list_ptr[i+1]->list_host_name);
-			strcpy(list_ptr[i]->list_ip,list_ptr[i+1]->list_ip);
-			list_ptr[i]->list_port=list_ptr[i+1]->list_port;
-			list_ptr[i]->fd_socket=list_ptr[i+1]->fd_socket;
-			list_ptr[i]->rcv_msg=list_ptr[i+1]->rcv_msg;
-			list_ptr[i]->snd_msg=list_ptr[i+1]->snd_msg;
-			strcpy(list_ptr[i]->state,list_ptr[i+1]->state);
-		}	
+// void sort_list_port() {
+//     // Bubble sort to sort the list by port number
+//     for (int i = 0; i < 5 - 1; i++) {
+//         for (int j = 0; j < 5 - i - 1; j++) {
+//             if (list_ptr[j]->list_id == 0 || list_ptr[j+1]->list_id == 0) {
+//                 // One of the elements is empty, so swap is not needed
+//                 continue;
+//             }
+//             if (list_ptr[j]->list_port > list_ptr[j+1]->list_port) {
+//                 // Swap the elements
+//                 struct client_info* temp = list_ptr[j];
+//                 list_ptr[j] = list_ptr[j+1];
+//                 list_ptr[j+1] = temp;
+//             }
+//         }
+//     }
+// }
 
-	}
-	list_ptr[last]->list_id=0;
-
-}
 void print_list()
 {
 	for(int i=0;i<5;i++)
@@ -785,15 +780,16 @@ void print_list()
 
 void getmyport()
 {
+	const char *outputs[1]={"PORT"};
 	struct sockaddr_in portvalue;
 	socklen_t len=sizeof(portvalue);
 	if(getsockname(fdsocket,(struct sockaddr *)&portvalue, &len) == -1)
 	{
-		cse4589_print_and_log("[PORT:ERROR]\n");
+		cse4589_print_and_log("[%s:ERROR]\n", outputs[0]);
 	}
 	else{
-		cse4589_print_and_log("[PORT:SUCCESS]\n");
-		cse4589_print_and_log("PORT:%d\n", ntohs(portvalue.sin_port));
+		cse4589_print_and_log("[%s:SUCCESS]\n",outputs[0]);
+		cse4589_print_and_log("%s:%d\n", outputs[0],ntohs(portvalue.sin_port));
 	}
 }
 
@@ -851,13 +847,4 @@ file_des()
 	FD_ZERO(&client_master_list); 
     FD_ZERO(&client_watch_list);
     FD_SET(STDIN, &client_master_list);
-}
-
-void author_output()
-{
-	char a[10] = "nravula";
-	char b[10] ="AUTHOR";
-	cse4589_print_and_log("[%s:SUCCESS]\n",b);
-	cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a);
-	cse4589_print_and_log("[%s:END]\n",b);
 }
