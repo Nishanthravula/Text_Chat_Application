@@ -101,6 +101,7 @@ int main(int argc, char **argv)
 	fclose(fopen(LOGFILE, "w"));
 
 	/*Start Here*/
+	
 	struct list_content hosts[6];
 	if(argc != 3) 
 	{
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
 	}
 	else if(*argv[1]=='c')
 	{
-		clientside(atoi(argv[2]));
+		clientside((atoi(argv[2])));
 	}
 	else
 	{
@@ -126,8 +127,10 @@ int main(int argc, char **argv)
 
 void clientside(int client_port)
 {
+	char a[10] ="nravula";
 	int bind_port=bind_the_socket(client_port);
 	int loggedin=0;//using as bool
+	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	if(bind_port==0)
 	{
 		exit(-1);
@@ -140,7 +143,7 @@ void clientside(int client_port)
 	struct client_msg data;
 	file_des();
     client_head_socket=0;
-	while(1)
+	while(TRUE)
 	{
 		fflush(stdout);	
 		file_des();
@@ -175,36 +178,38 @@ void clientside(int client_port)
 
 						//printf("I got: %s(size:%d chars)", msg, strlen(msg));
 
-						if((strcmp(msg,"AUTHOR"))==0)
+						if((strcmp(msg,outputs[0]))==0)
 						{
-							void author_output()
+							cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
+							cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a);
+							cse4589_print_and_log("[AUTHOR:END]\n");
 						}
-						else if((strcmp(msg,"IP"))==0)
+						else if((strcmp(msg,outputs[1]))==0)
 						{
 							showIP();
-							cse4589_print_and_log("[IP:END]\n");
+							cse4589_print_and_log("[%s:END]\n",outputs[1]);
 						}
-						else if((strcmp(msg,"PORT"))==0)
+						else if((strcmp(msg,outputs[2]))==0)
 						{
 							getmyport();
-							cse4589_print_and_log("[PORT:END]\n");
+							cse4589_print_and_log("[%s:END]\n",outputs[2]);
 						}
-						else if((strcmp(msg,"LIST"))==0 &&
+						else if((strcmp(msg,outputs[3]))==0 &&
 								loggedin==1)
 						{
-							strcpy(data.cmd,"LIST");
+							strcpy(data.cmd,outputs[3]);
 							if(send(server, &data, sizeof(data), 0) == sizeof(data))
 							{
-								cse4589_print_and_log("[LIST:SUCCESS]\n");
+								cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
 							}
 							else
 							{
-								cse4589_print_and_log("[LIST:ERROR]\n");
+								cse4589_print_and_log("[%s:ERROR]\n",outputs[3]);
 							}
 							
 							fflush(stdout);
 						}
-						else if((strncmp(msg,"LOGIN",5))==0)
+						else if((strncmp(msg,outputs[4],5))==0)
 						{
 							char ip[32];
 							char portv[32];
@@ -237,20 +242,20 @@ void clientside(int client_port)
 								for (; msg[k] != '\0'; k++)
 								{
 									portv[j]=msg[k];
-									j++
+									j++;
 								}
 								portv[j]='\0';
 								int length = strlen (portv);
 								int p_error=0;
-								int i=0;
 							    // for (int i=0;i<length; i++)
 							    // {
 							    //     if (!isdigit(portv[i]))
-							    //     {
+							    //     {cd cd ..
 							    //         printf ("Entered input is not a number\n");
 							    //         p_error=1;
 							    //     }
 							    // }
+								int i=0;
 								while(i<length)
 							    {
 							        if (!isdigit(portv[i]))
@@ -262,8 +267,8 @@ void clientside(int client_port)
 							    }
 								if(p_error==1)
 								{
-									cse4589_print_and_log("[LOGIN:ERROR]\n");
-									cse4589_print_and_log("[LOGIN:END]\n");
+									cse4589_print_and_log("[%s:ERROR]\n",outputs[4]);
+									cse4589_print_and_log("[%s:END]\n",outputs[4]);
 								}
 								else
 								{
@@ -276,28 +281,28 @@ void clientside(int client_port)
 										FD_SET(server, &client_master_list);
 										client_head_socket=server;
 										loggedin=1;
-										cse4589_print_and_log("[LOGIN:SUCCESS]\n");
+										cse4589_print_and_log("[%s:SUCCESS]\n",outputs[4]);
 									}
 									else
 									{
-										cse4589_print_and_log("[LOGIN:ERROR]\n");
-										cse4589_print_and_log("[LOGIN:END]\n");
+										cse4589_print_and_log("[%s:ERROR]\n",outputs[4]);
+										cse4589_print_and_log("[%s:END]\n",outputs[4]);
 									}
 								}
 							}
 							else
 							{
-								cse4589_print_and_log("[LOGIN:ERROR]\n");
-								cse4589_print_and_log("[LOGIN:END]\n");
+								cse4589_print_and_log("[%s:ERROR]\n",outputs[4]);
+								cse4589_print_and_log("[%s:END]\n",outputs[4]);
 							}
 							
 							fflush(stdout);
 						}
-						else if((strcmp(msg,"REFRESH"))==0&&
+						else if((strcmp(msg,outputs[5]))==0&&
 								loggedin==0)
 				        {  
-				        	cse4589_print_and_log("[REFRESH:SUCCESS]\n"); 
-				        	cse4589_print_and_log("[REFRESH:END]\n");                 
+				        	cse4589_print_and_log("[%s:SUCCESS]\n",outputs[5]); 
+				        	cse4589_print_and_log("[%s:END]\n",outputs[5]);                 
 				        }
 				        
 						
@@ -315,11 +320,11 @@ void clientside(int client_port)
 							cse4589_print_and_log("[LOGOUT:END]\n");	
 						}
 						
-						else if((strcmp(msg,"EXIT"))==0)
+						else if((strcmp(msg,outputs[6]))==0)
 						{
 							close(server);
-							cse4589_print_and_log("[EXIT:SUCCESS]\n");
-							cse4589_print_and_log("[EXIT:END]\n");
+							cse4589_print_and_log("[%s:SUCCESS]\n",outputs[6]);
+							cse4589_print_and_log("[%s:END]\n",outputs[6]);
 							exit(0);
 						}
                     }
@@ -375,6 +380,8 @@ void clientside(int client_port)
 //server side
 void serverSide(int server_port)
 {
+	char a[10] ="nravula";
+	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	printf("\n Inside server side with port %d", server_port);
 	int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
 	struct server_msg server_data;
@@ -475,28 +482,32 @@ fflush(stdout);
 						int len=strlen(cmd);
 						cmd[len-1]='\0';// to remove \n from the msg
 						
-						//Process PA1 commands here ...
-						if((strcmp(cmd, "AUTHOR"))==0)
+						//Process PA1 commands here ...cd 
+						if((strcmp(cmd,outputs[0]))==0)
 						{
-							void author_output()
+							cse4589_print_and_log("[%s:SUCCESS]\n",outputs[0]);
+							cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a);
+							cse4589_print_and_log("[%s:END]\n",outputs[0]);
 						}
-	                    else if((strcmp(cmd, "IP"))==0)
+	                    else if((strcmp(cmd, outputs[1]))==0)
 	                    {
 							showIP();
-							cse4589_print_and_log("[IP:%s]\n",END);
+							cse4589_print_and_log("[%s:END]\n",outputs[1]);
 	                    }
-	                    else if((strcmp(cmd, "PORT"))==0)
+	                    else if((strcmp(cmd, outputs[2]))==0)
 	                    {
 							getmyport();
-							cse4589_print_and_log("[PORT:%s]\n",END);
+							cse4589_print_and_log("[%s:END]\n",outputs[2]);
 	                    }
-	                    else if((strcmp(cmd, "LIST"))==0)
+	                    else if((strcmp(cmd, outputs[3]))==0)
 	                    {
 	                    	sort_list_port();
-	                    	cse4589_print_and_log("[LIST:%s]\n",SUCCESS);
+	                    	cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
 	                        print_list();
-	                        cse4589_print_and_log("[LIST:%s]\n",END);
+	                        cse4589_print_and_log("[%s:END]\n",outputs[3]);
 	                    }
+	                    
+	                    
 						free(cmd);
 	                }
 	                /* Check if new client is requesting connection */
@@ -550,6 +561,7 @@ fflush(stdout);
 
                         //send list of currently loged in clients to the client
                         sort_list_port();
+
 						//INFORMING THAT LOGIN IS OVER
 						strcpy(server_data.cmd,"LOGLISTOVER");
 						if(send(fdaccept, &server_data, sizeof(server_data), 0) == sizeof(server_data))
@@ -577,7 +589,7 @@ fflush(stdout);
 	                    else 
 	                    {
 	                    	//Process incoming data from existing clients here ...
-	                    	if((strcmp(rcv_data.cmd,"LIST"))==0)
+	                    	if((strcmp(rcv_data.cmd,outputs[3]))==0)
 	                    	{
 	                    		for(int i=0;i<5;i++)
 								{
@@ -780,18 +792,12 @@ void getmyport()
 	}
 }
 
+
+
 int isvalidIP(char *ip)
 {
 	struct sockaddr_in temp;
-	int result= inet_pton(AF_INET, ip, &temp.sin_addr);
-	if(result==1)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	return inet_pton(AF_INET, ip, &temp.sin_addr) == 1;
 }
 
 void showIP()
@@ -840,11 +846,4 @@ file_des()
 	FD_ZERO(&client_master_list); 
     FD_ZERO(&client_watch_list);
     FD_SET(STDIN, &client_master_list);
-}
-
-void author_output()
-{
-	cse4589_print_and_log("[AUTHOR:SUCCESS]\n");
-	cse4589_print_and_log("I, nravula, have read and understood the course academic integrity policy.\n");
-	cse4589_print_and_log("[AUTHOR:END]\n");
 }
