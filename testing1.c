@@ -453,13 +453,13 @@ void s_Side(int server_port)
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	fdsocket=server_socket;// bcoz fdsocket is used by myport function
-    if(server_socket < 0)
+    if(server_socket >= 0)
     {
-		perror("Cannot create socket");
+		printf("\nSocket created successfully\n");
     }
     else
     {
-    	printf("created socket");
+    	perror("socket cannot be created");
     }
 
 	/* Fill up sockaddr_in struct */
@@ -469,18 +469,24 @@ void s_Side(int server_port)
     server_addr.sin_port = htons(server_port);
 
     /* bind*/
-    if(bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0 ){
-    	perror("Bind failed");
+	int k = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if(k >= 0 )
+	{
+		printf("\nSocket Binded Successfully\n");
     }
-    else{
-    	printf("Binded to socket\n");
+    else
+	{
+		perror("Binding the socket failed");
     }
     /* Listen */
-    if(listen(server_socket, BACKLOG) < 0){
-    	perror("Unable to listen on port");
+	int m = listen(server_socket, BACKLOG);
+    if(m >= 0)
+	{
+    	printf("\nSocket listening\n");
     }
-    else{
-    	printf("listening to socket\n");
+    else
+	{
+		perror("Listening on port is not possible");
     }
     /*Initializing list*/
     // for(int i=0;i<5;i++)
