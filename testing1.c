@@ -110,7 +110,7 @@ void cSide(int client_port)
 {
 	int bind_port=bind_the_socket(client_port);
 	int loggedin=0;//using as bool
-	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
+	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT","LOGOUT","SUCCESS"};
 	if(bind_port==0)
 	{
 		exit(-1);
@@ -352,31 +352,31 @@ void cSide(int client_port)
 				        }
 				        
 						
-						else if((strcmp(msg,"LOGOUT"))==0&&
+						// else if((strcmp(msg,"LOGOUT"))==0&&
 
-								loggedin==1)
+						// 		loggedin==1)
 
-						{
+						// {
 
-							strcpy(data.cmd,"LOGOUT");
+						// 	strcpy(data.cmd,"LOGOUT");
 
-							if(send(server, &data, sizeof(data), 0) == sizeof(data))
+						// 	if(send(server, &data, sizeof(data), 0) == sizeof(data))
 
-							{
+						// 	{
 
-								printf("[LOGOUT:SUCCESS]\n");
+						// 		printf("[LOGOUT:SUCCESS]\n");
 
-								loggedin=0;
+						// 		loggedin=0;
 
-								int bind_port=bind_the_socket(client_port);
+						// 		int bind_port=bind_the_socket(client_port);
 
-								server=close(server);
+						// 		server=close(server);
 
-							}
+						// 	}
 
-							cse4589_print_and_log("[LOGOUT:END]\n");	
+						// 	cse4589_print_and_log("[LOGOUT:END]\n");	
 
-						}
+						// }
 						
 
 						else if((strcmp(msg,outputs[6]))==0)
@@ -702,11 +702,11 @@ fflush(stdout);
 	                    {
 	                    	//Process incoming data from existing clients here ...
 	                    	if((strcmp(rcv_data.cmd,outputs[3]))==0)
-	                    	{
+      	                    {
 								int i=0;
 	                    		while(i<5)
 								{
-									int k=lp[i]->list_id
+									int k=lp[i]->list_id;
 									if(k==0)
 									{	
 										printf("\nError to receive data from clients\n");
