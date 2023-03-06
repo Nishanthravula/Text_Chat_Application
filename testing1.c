@@ -142,7 +142,8 @@ void cSide(int client_port)
             exit(-1);
         }
 
-        if(selret > 0)
+        // if(selret > 0)
+		else
         {
             /* Loop through socket descriptors to check which ones are ready */
             for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
