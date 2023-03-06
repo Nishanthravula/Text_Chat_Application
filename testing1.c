@@ -703,10 +703,16 @@ fflush(stdout);
 	                    	//Process incoming data from existing clients here ...
 	                    	if((strcmp(rcv_data.cmd,outputs[3]))==0)
 	                    	{
-	                    		for(int i=0;i<5;i++)
+								int i=0;
+	                    		while(i<5)
 								{
-									if(lp[i]->list_id!=0)
+									int k=lp[i]->list_id
+									if(k==0)
 									{	
+										printf("\nError to receive data from clients\n");
+									}
+									else
+									{
 										printf("%-5d%-35s%-20s%-8d\n", lp[i]->list_id, lp[i]->list_host_name, lp[i]->list_ip, lp[i]->list_port,lp[i]->fd_socket);
 										
 										send_list.list_id=lp[i]->list_id;
@@ -721,6 +727,7 @@ fflush(stdout);
 											printf("Done!\n");
 			                            }	
 									}
+									i++;
 								}
 								//informing that the list is over
 								strcpy(server_data.cmd,"LISTOVER");
