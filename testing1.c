@@ -43,8 +43,8 @@ struct list_content
 	char list_ip[32];
 	int list_port;
 	int fd_socket;
-	// int rcv_msg;
-	// int snd_msg;
+	int rcv_msg;
+	int snd_msg;
 	char state[20];
 
 }*lp[5];
@@ -450,7 +450,7 @@ void s_Side(int server_port)
 	int fdaccept = 0;
 	int caddr_len;
 	int send_socket = 0;
-
+    int server_socket;
 	// struct server_msg server_data;
 	// struct list_content send_list;
 	/*our defined client message*/
