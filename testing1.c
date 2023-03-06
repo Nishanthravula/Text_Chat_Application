@@ -439,7 +439,7 @@ void cSide(int client_port)
 void s_Side(int server_port)
 {
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
-	printf("\n Inside server side with port %d", server_port);
+	printf("\n Inside server side with port %d\n", server_port);
 	int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
 	struct server_msg server_data;
 	struct list_content send_list;
@@ -453,14 +453,7 @@ void s_Side(int server_port)
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	fdsocket=server_socket;// bcoz fdsocket is used by myport function
-     if(server_socket >= 0)
-    {
-		printf("\nSocket created successfully\n");
-    }
-    else
-    {
-    	perror("socket cannot be created");
-    }
+    (server_socket >= 0) ? printf("\nSocket created successfully\n") : perror("socket cannot be created");
 
 	/* Fill up sockaddr_in struct */
 	bzero(&server_addr, sizeof(server_addr));
@@ -527,20 +520,15 @@ fflush(stdout);
 
         /* select() system call. This will BLOCK */
         selret = select(head_socket + 1, &watch_list, NULL, NULL, NULL);
-        if(selret >= 0)
+        if(selret < 0)
         {
-            printf("\nSelect command passed\n");
-        }
-		else
-		{
-			perror("select command failed.");
+            perror("select failed.");
             exit(1);
-		}
+        }
 
         if(selret > 0)
         {
-			sock_index=0
-        	 while(sock_index<=head_socket)
+        	 for(sock_index=0; sock_index<=head_socket; sock_index+=1)
             {
                 fflush(stdout);
                 memset(&server_data, '\0', sizeof(server_data));//mera
@@ -591,14 +579,7 @@ fflush(stdout);
 	                    fdaccept = accept(server_socket, (struct sockaddr *)&client_addr, &caddr_len);// on success accept returns an integer, that is the file descriptor for the accepted socket.
 	                    //printf("\n fdaccept index value:-%d",fdaccept);
 
-	                    if(fdaccept >= 0)
-	                    {
-							printf("Accepted");
-	                    }
-						else
-						{
-							perror("Accept failed.");
-						}
+                        fdaccept >= 0 ? printf("Accepted") : perror("Accept failed.");
 	                    char ip[INET_ADDRSTRLEN];
 	                    inet_ntop(AF_INET,&client_addr.sin_addr.s_addr,ip, INET_ADDRSTRLEN);
 
@@ -606,10 +587,9 @@ fflush(stdout);
 						ntohs(client_addr.sin_port);
 	                    /* Add to watched socket list */
 	                    FD_SET(fdaccept, &master_list);
-	                    if(head_socket < fdaccept) 
-                        {
-                            head_socket = fdaccept;
-                        }
+
+                        head_socket = (fdaccept > head_socket) ? fdaccept : head_socket;
+
 	                    char host[1024];
 	                    getnameinfo((struct sockaddr *)&client_addr, caddr_len,host, sizeof(host), 0,0,0);
 	                    printf("\nhost name is:-%s", host);
@@ -621,8 +601,14 @@ fflush(stdout);
                         // 	n++;
                         // }
 						for(n=0;(cp[n]->C_id)!=0;n++);
-						cp[n]->C_id=n+1;
-						strcpy(cp[n]->C_ip,ip);
+                        if(n>=0){
+                            cp[n]->C_id=n+1;
+						    strcpy(cp[n]->C_ip,ip);
+                        }
+                        else{
+                            exit(-1);
+                        }
+						
                      	/*Add new client information to the list*/
                         int m=0;
                         // while((lp[m]->list_id)!=0)
@@ -754,7 +740,6 @@ fflush(stdout);
 	                    }
 	             	}   
 	         	}
-				 sock_index++;
             }
         }
     }
