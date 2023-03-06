@@ -19,27 +19,19 @@
 //#include <errno.h>
 
 
-#define TRUE 1
 #define MSG_SIZE 256
-#define BUFFER_SIZE 256
 #define BACKLOG 5
 #define STDIN 0
-#define TRUE 1
 #define CMD_SIZE 100
-#define BUFFER_SIZE 256
 
 
-void cSide(int client_port);
-void s_Side(int server_port);
-int bind_the_socket(int c_port);
-int connect_to_host(char *server_ip, int server_port, int c_port);
-void myport();
-void IP_Add();
-void print_list();
-void print_stats();
-int isvalidIP(char *ip);
-void sortinglist_port();
-// void remove_from_list(int sock_delete);
+
+
+
+
+
+
+
 
 
 int fdsocket,client_head_socket, client_sock_index;
@@ -124,6 +116,8 @@ int main(int argc, char **argv)
 	return 0;
 }
 //client side
+void cSide(int client_port);
+void s_Side(int server_port);
 
 void cSide(int client_port)
 {
@@ -731,6 +725,8 @@ fflush(stdout);
     }
 }
 
+int bind_the_socket(int c_port);
+int connect_to_host(char *server_ip, int server_port, int c_port);
 
 void author_output()
 {
@@ -739,6 +735,10 @@ void author_output()
 	cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a[0]);
 	cse4589_print_and_log("[%s:END]\n",a[1]);
 }
+
+void myport();
+void IP_Add();
+void print_list();
 
 int bind_the_socket(int c_port)
 {
@@ -830,15 +830,19 @@ void sortinglist_port() {
         }
     }
 }
-
+void print_stats();
+int isvalidIP(char *ip);
+void sortinglist_port();
 void print_list()
 {
-	for(int i=0;i<5;i++)
+    int i=0;
+	while(i<5)
 	{
 		if(list_ptr[i]->list_id!=0)
 		{	
 			cse4589_print_and_log("%-5d%-35s%-20s%-8d\n", list_ptr[i]->list_id, list_ptr[i]->list_host_name, list_ptr[i]->list_ip, list_ptr[i]->list_port);
 		}
+        i++;
 	}
 }
 
