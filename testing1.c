@@ -412,7 +412,7 @@ void cSide(int client_port)
 
 
 
-							if(strcmp(srcv.cmd,"LIST")==0)
+							if(strcmp(srcv.cmd,outputs[3])==0)
 
 							{	
 
@@ -421,7 +421,7 @@ void cSide(int client_port)
 							}
 							else if(strcmp(srcv.cmd,"LISTOVER")==0)
 							{	
-								cse4589_print_and_log("[LIST:END]\n");
+								cse4589_print_and_log("[%s:END]\n",outputs[3]);
 							}
 							
 							
@@ -453,7 +453,7 @@ void s_Side(int server_port)
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	fdsocket=server_socket;// bcoz fdsocket is used by myport function
-    if(server_socket >= 0)
+     if(server_socket >= 0)
     {
 		printf("\nSocket created successfully\n");
     }
@@ -726,7 +726,7 @@ fflush(stdout);
 										strcpy(send_list.list_ip,lp[i]->list_ip);
 										send_list.list_port=lp[i]->list_port;
 
-										strcpy(server_data.cmd,"LIST");
+										strcpy(server_data.cmd,outputs[3]);
 										server_data.list_row=send_list;
 										if(send(sock_index, &server_data, sizeof(server_data), 0) == sizeof(server_data))
 			                            {
