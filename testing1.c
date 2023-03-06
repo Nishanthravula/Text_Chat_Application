@@ -33,7 +33,7 @@ struct client_msg
 	char ip[32];
 	char info[256];
 };
-
+struct client_msg rcv_data;
 
 
 struct list_content
@@ -43,11 +43,12 @@ struct list_content
 	char list_ip[32];
 	int list_port;
 	int fd_socket;
-	int rcv_msg;
-	int snd_msg;
+	// int rcv_msg;
+	// int snd_msg;
 	char state[20];
 
 }*lp[5];
+struct list_content send_list;
 
 /* Structure to represent messages from the server */
 struct server_msg {
@@ -56,6 +57,8 @@ struct server_msg {
     char info[256]; /* Additional information associated with the message */
     struct list_content list_row; /* Struct to hold information about a row in a list */
 };
+struct server_msg server_data;
+
 struct client_list
 {
 	int C_id;
@@ -440,11 +443,18 @@ void s_Side(int server_port)
 {
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	printf("\n Inside server side with port %d\n", server_port);
-	int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
-	struct server_msg server_data;
-	struct list_content send_list;
+	// int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
+	int head_socket;
+	int selret;
+	int sock_index;
+	int fdaccept = 0;
+	int caddr_len;
+	int send_socket = 0;
+
+	// struct server_msg server_data;
+	// struct list_content send_list;
 	/*our defined client message*/
-	struct client_msg rcv_data;
+	// struct client_msg rcv_data;
     /* Socket address*/
 	struct sockaddr_in server_addr, client_addr;
 
@@ -453,7 +463,7 @@ void s_Side(int server_port)
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	fdsocket=server_socket;// bcoz fdsocket is used by myport function
-    (server_socket >= 0) ? printf("\nSocket created successfully\n") : perror("socket cannot be created");
+    (fdsocket >= 0) ? printf("\nSocket created successfully\n") : perror("socket cannot be created");
 
 	/* Fill up sockaddr_in struct */
 	bzero(&server_addr, sizeof(server_addr));
