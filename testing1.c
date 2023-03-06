@@ -174,172 +174,284 @@ void cSide(int client_port)
 						/*to get rid of '\n' added by fgets*/
 						int len=strlen(msg);
 						msg[len-1]='\0';
+
 						if((strcmp(msg,outputs[0]))==0)
+
 						{
+
 							author_output();
 						}
+
 						else if((strcmp(msg,outputs[1]))==0)
+
 						{
+
 							IP_Add();
-							cse4589_print_and_log("[%s:END]\n",outputs[1]);
-						}
-						else if((strcmp(msg,outputs[2]))==0)
-						{
-							myport();
-							cse4589_print_and_log("[%s:END]\n",outputs[2]);
-						}
-						else if((strcmp(msg,outputs[3]))==0 &&
-								loggedin==1)
-						{
-							strcpy(data.cmd,outputs[3]);
-							if(send(server, &data, sizeof(data), 0) == sizeof(data))
-							{
-								cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
-							}
-							else
-							{
-								cse4589_print_and_log("[%s:ERROR]\n",outputs[3]);
-							}
 							
-							fflush(stdout);
+                            cse4589_print_and_log("[%s:END]\n",outputs[1]);
 						}
-						else if((strncmp(msg,outputs[4],5))==0)
-						{
-							char ip[32];
-							char portv[32];
-							int k=6;
-							j=0;
-							// while(msg[k]!=' ')
-							// {
-							// 	ip[j]=msg[k];
-							// 	j=j+1;
-							// 	k=k+1;
-							// }
+
+						
+                        else if((strcmp(msg,outputs[2]))==0)
+						
+                        {
+						
+                        	myport();
+						
+                        	cse4589_print_and_log("[%s:END]\n",outputs[2]);
+						
+                        }
+						
+                        else if((strcmp(msg,outputs[3]))==0 &&
+						
+                        		loggedin==1)
+						
+                        {
+						
+                        	strcpy(data.cmd,outputs[3]);
+						
+                        	if(send(server, &data, sizeof(data), 0) == sizeof(data))
+						
+                        	{
+						
+                        		cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
+						
+                        	}
+						
+                        	else
+						
+                        	{
+						
+                        		cse4589_print_and_log("[%s:ERROR]\n",outputs[3]);
+						
+                        	}
+
+
+						
+                        	fflush(stdout);
+						
+                        }
+						
+                        else if((strncmp(msg,outputs[4],5))==0)
+						
+                        {
+						
+                        	char ip[32];
+						
+                        	char portv[32];
+						
+                        	int k=6;
+						
+                        	j=0;
+
+
+
 							for (; msg[k] != ' '; k++)
+
 							{
+
 								ip[j] = msg[k];
+
 								j++;
+
 							}
+
 							ip[j]='\0';
+
 							//printf("\n your ip add is %s",ip);
+
 							if((isvalidIP(ip))==1)
+
 							{
-								//printf("\n you entered a valid IP address");
+
 								j=0;
+
 								k=k+1;
-								// while(msg[k]!='\0')
-								// {
-								// 	portv[j]=msg[k];
-								// 	k=k+1;
-								// 	j=j+1;
-								// }
+
+
+
 								for (; msg[k] != '\0'; k++)
+
 								{
+
 									portv[j]=msg[k];
+
 									j++;
+
 								}
+
 								portv[j]='\0';
+
 								int length = strlen (portv);
+
 								int p_error=0;
-							    // for (int i=0;i<length; i++)
-							    // {
-							    //     if (!isdigit(portv[i]))
-							    //     {cd cd ..
-							    //         printf ("Entered input is not a number\n");
-							    //         p_error=1;
-							    //     }
-							    // }
+
 								int i=0;
+
 								while(i<length)
+
 							    {
+
 							        if (!isdigit(portv[i]))
+
 							        {
+
 							            printf ("Entered input is not a number\n");
+
 							            p_error=1;
+
 							        }
+
 									i++;
+
 							    }
+
 								if(p_error==1)
+
 								{
+
 									cse4589_print_and_log("[%s:ERROR]\n",outputs[4]);
+
 									cse4589_print_and_log("[%s:END]\n",outputs[4]);
+
 								}
+
 								else
+
 								{
+
 									int l=1;
+
 									int u=65535;
+
 									int port_check=atoi(portv);
+
 									if( l <= port_check && port_check <= u)
+
 									{	/*connect to server*/
+
 										server=connect_to_host(ip, atoi(portv), client_port);/*atoi converts the string argument str to an integer (type int).*/
+
 										FD_SET(server, &client_master_list);
+
 										client_head_socket=server;
+
 										loggedin=1;
+
 										cse4589_print_and_log("[%s:SUCCESS]\n",outputs[4]);
+
 									}
+
 									else
+
 									{
+
 										cse4589_print_and_log("[%s:ERROR]\n",outputs[4]);
+
 										cse4589_print_and_log("[%s:END]\n",outputs[4]);
+
 									}
+
 								}
+
 							}
+
 							else
+
 							{
+
 								cse4589_print_and_log("[%s:ERROR]\n",outputs[4]);
+
 								cse4589_print_and_log("[%s:END]\n",outputs[4]);
+
 							}
-							
+
+
+
 							fflush(stdout);
+
 						}
+
 						else if((strcmp(msg,outputs[5]))==0&&
+
 								loggedin==0)
+
 				        {  
+
 				        	cse4589_print_and_log("[%s:SUCCESS]\n",outputs[5]); 
+
 				        	cse4589_print_and_log("[%s:END]\n",outputs[5]);                 
+
 				        }
 				        
 						
 						else if((strcmp(msg,"LOGOUT"))==0&&
+
 								loggedin==1)
+
 						{
+
 							strcpy(data.cmd,"LOGOUT");
+
 							if(send(server, &data, sizeof(data), 0) == sizeof(data))
+
 							{
+
 								printf("[LOGOUT:SUCCESS]\n");
+
 								loggedin=0;
+
 								int bind_port=bind_the_socket(client_port);
+
 								server=close(server);
+
 							}
+
 							cse4589_print_and_log("[LOGOUT:END]\n");	
+
 						}
 						
+
 						else if((strcmp(msg,outputs[6]))==0)
+
 						{
+
 							close(server);
+
 							cse4589_print_and_log("[%s:SUCCESS]\n",outputs[6]);
+
+
 							cse4589_print_and_log("[%s:END]\n",outputs[6]);
+
 							exit(0);
+
 						}
+
                     }
+
                     else
+
                     {
+
         				struct server_msg srcv;
+
         				memset(&srcv, '\0', sizeof(srcv));
-	                   
+
+
+
 						if(recv(server, &srcv, sizeof(srcv), 0) >= 0)
+
 						{
-						
+
+
+
 							if(strcmp(srcv.cmd,"LIST")==0)
+
 							{	
+
 								cse4589_print_and_log("%-5d%-35s%-20s%-8d\n",srcv.list_row.list_id,srcv.list_row.list_host_name,srcv.list_row.list_ip,srcv.list_row.list_port);
+
 							}
-							/*
-							else if(strcmp(srcv.cmd,"LOGLIST")==0)
-							{	
-								cse4589_print_and_log("%-5d%-35s%-20s%-8d\n",srcv.list_row.list_id,srcv.list_row.list_host_name,srcv.list_row.list_ip,srcv.list_row.list_port);
-							}
-							*/
 							else if(strcmp(srcv.cmd,"LISTOVER")==0)
 							{	
 								cse4589_print_and_log("[LIST:END]\n");
@@ -609,20 +721,6 @@ fflush(stdout);
 	                            fflush(stdout);	
 								
 	                    	}
-	                    	// else if((strcmp(rcv_data.cmd,"LOGOUT"))==0)
-	                    	// {
-	                    	// 	//search list for senders ip based on current socket
-							// 	for(int i=0;i<5;i++)
-							// 	{
-							// 		if(list_ptr[i]->fd_socket==sock_index)
-							// 		{	
-							// 			strcpy(list_ptr[i]->state,"logged-out");
-							// 			close(sock_index);
-							// 			FD_CLR(sock_index, &master_list);
-							// 			sortinglist_port();
-							// 		}	
-							// 	}
-	                    	// }
 							fflush(stdout);
 
 	                    }
@@ -646,48 +744,73 @@ int bind_the_socket(int c_port)
 {
 	struct sockaddr_in my_addrs;
 	fdsocket = socket(AF_INET, SOCK_STREAM, 0);// return socket file descriptor
-    if(fdsocket < 0)
-    {
-       perror("Failed to create socket");
-       return 0;
-    }
+    // if(fdsocket < 0)
+    // {
+    //    perror("Failed to create socket");
+    //    return 0;
+    // }
+
+	if(fdsocket > 0)
+	{
+		printf("Socked created successfully");
+	}
+	else
+	{
+		perror("Socket creation failed");
+	}
+
 
     //setting up client socket
     my_addrs.sin_family=AF_INET;
     my_addrs.sin_addr.s_addr=INADDR_ANY;
-    my_addrs.sin_port=htons(c_port);
+    // my_addrs.sin_port=htons(c_port);
+
+	uint16_t client_port_network_byte_order = htons(c_port);
+	my_addrs.sin_port = client_port_network_byte_order;
+
     int optval=1;
     setsockopt(fdsocket, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
-    if(bind(fdsocket, (struct  sockaddr*) &my_addrs, sizeof(struct sockaddr_in)) == 0)
+
+	int k=bind(fdsocket, (struct  sockaddr*) &my_addrs, sizeof(struct sockaddr_in));
+
+    if(k != 0)
     {
-    	printf("\nclient binded to port correctly\n");
-    	return 1;
+		printf("\nTrouble in client port binding\n");
+		return 0;
     }
     else
     {
-    	printf("\nError in binding client port\n");
-    	return 0;
+    	printf("\nThe client successfully bound to the port\n");
+    	return 1;
     }
 }
+
+
 int connect_to_host(char *server_ip, int server_port, int c_port)
 {
-    int len;
+    // int len;
     struct sockaddr_in remote_server_addr;
 
     bzero(&remote_server_addr, sizeof(remote_server_addr));
     remote_server_addr.sin_family = AF_INET;
     inet_pton(AF_INET, server_ip, &remote_server_addr.sin_addr);//inet_pton - convert IPv4 and IPv6 addresses from text to binary form
-    remote_server_addr.sin_port = htons(server_port);//function converts the unsigned short integer hostshort from host byte order to network byte order.
+    // remote_server_addr.sin_port = htons(server_port);//function converts the unsigned short integer hostshort from host byte order to network byte order.
 
-    if(connect(fdsocket, (struct sockaddr*)&remote_server_addr, sizeof(remote_server_addr)) < 0)
-    {
-        perror("Connect failed");
-    }
-    else{
-    	printf("\nLogged in\n");
-    }
-    return fdsocket;
+	uint16_t server_port_network_byte_order = htons(server_port);
+	remote_server_addr.sin_port = server_port_network_byte_order;
+
+    int k=connect(fdsocket, (struct sockaddr*)&remote_server_addr, sizeof(remote_server_addr));
+	if(k>=0)
+	{
+		printf("Login successful");
+	}
+	else
+	{
+		perror("Connection failed");
+	}
+	return fdsocket;
 }
+
 
 
 void sortinglist_port() {
