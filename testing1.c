@@ -118,7 +118,7 @@ void cSide(int clt_port)
 
 	printf("\ninside clt side");
 	int server=0;
-	int selret;
+	int xt;
 	int j=0;
 	struct clt_msg data;
 	file_des();
@@ -130,10 +130,10 @@ void cSide(int clt_port)
 		FD_SET(server, &clt_master_list);
 		clt_head_skt=server;
 
-		memcpy(&clt_watch_list, &clt_master_list, sizeof(clt_master_list));
+		fd_set clt_watch_list = clt_master_list;
 
-        selret = select(clt_head_skt + 1, &clt_watch_list, NULL, NULL, NULL);
-        if(selret <= 0)
+        xt = select(clt_head_skt + 1, &clt_watch_list, NULL, NULL, NULL);
+        if(xt <= 0)
         {
             perror("select failed.");
             exit(-1);
@@ -144,8 +144,10 @@ void cSide(int clt_port)
 
             for(clt_sock_index=0; clt_sock_index<=clt_head_skt; clt_sock_index+=1)
             {
+				if(clt_sock_index>=0){
                 if(FD_ISSET(clt_sock_index, &clt_watch_list))
                 {
+					if(clt_sock_index>=0){
                 	 if (clt_sock_index == STDIN)
                     {
 				        char *msg = (char*) malloc(sizeof(char)*MSG_SIZE);
@@ -398,7 +400,7 @@ void cSide(int clt_port)
                     } 
                     fflush(stdout);	
                 }
-            }
+            }} }
         }	
 	}
 }
@@ -409,7 +411,7 @@ void s_Side(int server_port)
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	printf("\n Inside server side with port %d\n", server_port);
 	int head_socket;
-	int selret;
+	int xt;
 	int sock_index;
 	int fdaccept = 0;
 	int caddr_len;
@@ -485,8 +487,8 @@ void s_Side(int server_port)
     {
         fflush(stdout);	
         memcpy(&watch_list, &master_list, sizeof(master_list));
-        selret = select(head_socket + 1, &watch_list, NULL, NULL, NULL);
-        if(selret <= 0)
+        xt = select(head_socket + 1, &watch_list, NULL, NULL, NULL);
+        if(xt <= 0)
         {
             perror("select failed.");
             exit(-1);
@@ -496,9 +498,11 @@ void s_Side(int server_port)
         	 for(sock_index=0; sock_index<=head_socket; sock_index+=1)
             {
                 fflush(stdout);
+				if(sock_index>=0){
                 memset(&server_data, '\0', sizeof(server_data));//mera
                 if(FD_ISSET(sock_index, &watch_list))
                 {
+					if(sock_index>=0){
 	                if (sock_index == STDIN)
 	                {
 	                	char *cmd = (char*) malloc(sizeof(char)*CMD_SIZE);
@@ -554,7 +558,6 @@ void s_Side(int server_port)
                         else{
                             exit(-1);
                         }			
-                     	/*Add new clt information to the list*/
                         int m=0;
 						for(m=0;(lp[m]->lt_id)!=0;m++);
                         if(m>=0)
@@ -611,10 +614,9 @@ void s_Side(int server_port)
 	                }
 	                else
 	                {
-	                    /* Initialize buffer to receieve response */
 	                	memset(&rData, '\0', sizeof(rData));
 
-	                    if(recv(sock_index, &rData, sizeof(rData), 0) <= 0)// recv returns length of the message on successful completion.
+	                    if(recv(sock_index, &rData, sizeof(rData), 0) <= 0)
 	                    {
 
 	                        printf("Remote Host terminated connection!\n");
@@ -623,7 +625,7 @@ void s_Side(int server_port)
 	                    }
 	                    else 
 	                    {
-	                    	//Process incoming data from existing clts here ...
+
 	                    	if((strcmp(rData.cmd,outputs[3]))==0)
       	                    {
 								int i=0;
@@ -648,7 +650,6 @@ void s_Side(int server_port)
 									}
 									i++;
 								}
-								//informing that the list is over
 								strcpy(server_data.cmd,"LISTOVER");
 								if(send(sock_index, &server_data, sizeof(server_data), 0) == sizeof(server_data))
 	                            {
@@ -660,8 +661,8 @@ void s_Side(int server_port)
 
 	                    }
 	             	}   
-	         	}
-            }
+	         	}}
+				 } }
         }
     }
 }
@@ -693,7 +694,7 @@ void print_list();
 int bind_the_socket(int c_port)
 {
 	struct sockaddr_in my_addrs;
-	fdsocket = socket(AF_INET, SOCK_STREAM, 0);// return socket file descriptor
+	fdsocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(fdsocket > 0)
 	{
 		printf("Socked created successfully");
@@ -702,7 +703,6 @@ int bind_the_socket(int c_port)
 	{
 		perror("Socket creation failed");
 	}
-  //setting up clt socket
     my_addrs.sin_family=AF_INET;
     my_addrs.sin_addr.s_addr=INADDR_ANY;
 	uint16_t clt_port_network_byte_order = htons(c_port);
@@ -742,15 +742,12 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
 	return fdsocket;
 }
 void sortinglt_port() {
-    // Bubble sort to sort the list by port number
     for (int i = 0; i < 5 - 1; i++) {
         for (int j = 0; j < 5 - i - 1; j++) {
             if (lp[j]->lt_id == 0 || lp[j+1]->lt_id == 0) {
-                // One of the elements is empty, so swap is not needed
                 continue;
             }
             if (lp[j]->lt_port > lp[j+1]->lt_port) {
-                // Swap the elements
                 struct clt_info* temp = lp[j];
                 lp[j] = lp[j+1];
                 lp[j+1] = temp;
