@@ -22,48 +22,51 @@
 #define STDIN 0
 #define CMD_SIZE 100
 
-int fdsocket,client_head_socket, client_sock_index;
-fd_set client_master_list, client_watch_list;
 
-struct client_msg
+
+
+struct clt_msg
 {
 	char cmd[20];
-	char ip[32];
 	char info[256];
+	char ip[32];	
 };
-struct client_msg rcv_data;
+struct clt_msg rData;
 
 
-struct list_content
+struct lt_cnt
 {
-	int list_id;
-	char list_host_name[40];
-	char list_ip[32];
-	int list_port;
-	int fd_socket;
-	int rcv_msg;
-	int snd_msg;
+	int rMsg;
+	int lt_port;
+	int sdMsg;
+	int lt_id;
+	char lt_ip[32];
+	int fd_skt;
+	char lt_ht_name[40];
 	char state[20];
 
 }*lp[5];
-struct list_content send_list;
+struct lt_cnt send_list;
 
 /* Structure to represent messages from the server */
 struct server_msg {
     char cmd[20]; /* Command associated with the message */
     char sender_ip[32]; /* IP address of the sender */
     char info[256]; /* Additional information associated with the message */
-    struct list_content list_row; /* Struct to hold information about a row in a list */
+    struct lt_cnt list_row; /* Struct to hold information about a row in a list */
 };
 struct server_msg server_data;
 
-struct client_list
+struct clt_list
 {
+	char buffer[1024];
 	int C_id;
 	char C_ip[32];
 	char ip[4][32];
-	char buffer[1024];
+	
 }*cp[5];
+int fdsocket,clt_head_skt, clt_sock_index;
+fd_set clt_master_list, clt_watch_list;
 
 /**
  * main function
@@ -82,7 +85,7 @@ int main(int argc, char **argv)
 
 	/*Start Here*/
 	
-	struct list_content hosts[6];
+	struct lt_cnt hosts[6];
     int port = atoi(argv[2]);
     char mode = *argv[1];
 
@@ -99,13 +102,13 @@ int main(int argc, char **argv)
     	return 0;
 }
 
-//client side
-void cSide(int client_port);
+//clt side
+void cSide(int clt_port);
 void s_Side(int server_port);
 
-void cSide(int client_port)
+void cSide(int clt_port)
 {
-	int bind_port=bind_the_socket(client_port);
+	int bind_port=bind_the_socket(clt_port);
 	int loggedin=0;
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT","LOGOUT","SUCCESS"};
 	if(bind_port==0)
@@ -113,23 +116,23 @@ void cSide(int client_port)
 		exit(-1);
 	}
 
-	printf("\ninside client side");
+	printf("\ninside clt side");
 	int server=0;
 	int selret;
 	int j=0;
-	struct client_msg data;
+	struct clt_msg data;
 	file_des();
-    client_head_socket=0;
+    clt_head_skt=0;
 	for(;;)
 	{
 		fflush(stdout);	
 		file_des();
-		FD_SET(server, &client_master_list);
-		client_head_socket=server;
+		FD_SET(server, &clt_master_list);
+		clt_head_skt=server;
 
-		memcpy(&client_watch_list, &client_master_list, sizeof(client_master_list));
+		memcpy(&clt_watch_list, &clt_master_list, sizeof(clt_master_list));
 
-        selret = select(client_head_socket + 1, &client_watch_list, NULL, NULL, NULL);
+        selret = select(clt_head_skt + 1, &clt_watch_list, NULL, NULL, NULL);
         if(selret <= 0)
         {
             perror("select failed.");
@@ -139,11 +142,11 @@ void cSide(int client_port)
         else
         {
 
-            for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
+            for(clt_sock_index=0; clt_sock_index<=clt_head_skt; clt_sock_index+=1)
             {
-                if(FD_ISSET(client_sock_index, &client_watch_list))
+                if(FD_ISSET(clt_sock_index, &clt_watch_list))
                 {
-                	 if (client_sock_index == STDIN)
+                	 if (clt_sock_index == STDIN)
                     {
 				        char *msg = (char*) malloc(sizeof(char)*MSG_SIZE);
 				    	memset(msg, '\0', MSG_SIZE);
@@ -308,9 +311,9 @@ void cSide(int client_port)
                                     }
 
                                     /*connect to server*/
-                                    server = connect_to_host(ip, atoi(portv), client_port);
-                                    FD_SET(server, &client_master_list);
-                                    client_head_socket = server;
+                                    server = connect_to_host(ip, atoi(portv), clt_port);
+                                    FD_SET(server, &clt_master_list);
+                                    clt_head_skt = server;
                                     loggedin = 1;
                                     cse4589_print_and_log("[%s:SUCCESS]\n",outputs[4]);
 
@@ -370,22 +373,21 @@ void cSide(int client_port)
         				struct server_msg srcv;
 
         				memset(&srcv, '\0', sizeof(srcv));
+                        int L = recv(server, &srcv, sizeof(srcv),0); 
 
 
-
-						if(recv(server, &srcv, sizeof(srcv), 0) >= 0)
+						if(L >= 0)
 
 						{
-
-
 
 							if(strcmp(srcv.cmd,outputs[3])==0)
 
 							{	
 
-								cse4589_print_and_log("%-5d%-35s%-20s%-8d\n",srcv.list_row.list_id,srcv.list_row.list_host_name,srcv.list_row.list_ip,srcv.list_row.list_port);
+								cse4589_print_and_log("%-5d%-35s%-20s%-8d\n",srcv.list_row.lt_id,srcv.list_row.lt_ht_name,srcv.list_row.lt_ip,srcv.list_row.lt_port);
 
 							}
+							
 							else if(strcmp(srcv.cmd,"LISTOVER")==0)
 							{	
 								cse4589_print_and_log("[%s:END]\n",outputs[3]);
@@ -413,11 +415,11 @@ void s_Side(int server_port)
 	int caddr_len;
 	int send_socket = 0;
     int server_socket;
-	struct sockaddr_in server_addr, client_addr;
+	struct sockaddr_in server_addr, clt_addr;
 	fd_set master_list, watch_list;
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	fdsocket=server_socket;
-    (fdsocket >= 0) ? printf("\nSocket created successfully\n") : perror("socket cannot be created");
+    (fdsocket >= 0) ? printf("\nCreated Socket successfully\n") : perror("socket cannot be created");
 	bzero(&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -443,14 +445,14 @@ void s_Side(int server_port)
 	int i =0;
 	while(i<5)
     {
-    	lp[i]=(struct list_content *)malloc(sizeof(struct list_content));
-    	lp[i]->list_id=0; 	
+    	lp[i]=(struct lt_cnt *)malloc(sizeof(struct lt_cnt));
+    	lp[i]->lt_id=0; 	
 		i++;
     }
 	int j=0;
 	while(j<5){
         if(j>=0){
-            cp[j]=(struct list_content *)malloc(sizeof(struct client_list));
+            cp[j]=(struct lt_cnt *)malloc(sizeof(struct clt_list));
         }
         if(j>=0){
             cp[j]->C_id=0;
@@ -521,7 +523,7 @@ void s_Side(int server_port)
 	                    }
 	                    else if((strcmp(cmd, outputs[3]))==0)
 	                    {
-	                    	sortinglist_port();
+	                    	sortinglt_port();
 	                    	cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
 	                        print_list();
 	                        cse4589_print_and_log("[%s:END]\n",outputs[3]);
@@ -530,19 +532,19 @@ void s_Side(int server_port)
 	                }
 	                else if(sock_index == server_socket)
 	                {
-	                    caddr_len = sizeof(client_addr);
-	                    fdaccept = accept(server_socket, (struct sockaddr *)&client_addr, &caddr_len);
+	                    caddr_len = sizeof(clt_addr);
+	                    fdaccept = accept(server_socket, (struct sockaddr *)&clt_addr, &caddr_len);
                         fdaccept >= 0 ? printf("Accepted") : perror("Accept failed.");
 	                    char ip[INET_ADDRSTRLEN];
-	                    inet_ntop(AF_INET,&client_addr.sin_addr.s_addr,ip, INET_ADDRSTRLEN);
+	                    inet_ntop(AF_INET,&clt_addr.sin_addr.s_addr,ip, INET_ADDRSTRLEN);
 						printf("\nRemote Host connected! with IP:-%s \n", ip);                        
-						ntohs(client_addr.sin_port);
+						ntohs(clt_addr.sin_port);
 	                    FD_SET(fdaccept, &master_list);
                         head_socket = (fdaccept > head_socket) ? fdaccept : head_socket;
 	                    char host[1024];
-	                    getnameinfo((struct sockaddr *)&client_addr, caddr_len,host, sizeof(host), 0,0,0);
+	                    getnameinfo((struct sockaddr *)&clt_addr, caddr_len,host, sizeof(host), 0,0,0);
 	                    printf("\nhost name is:-%s", host);
-	                    printf("\nPort number is:-%d", ntohs(client_addr.sin_port));
+	                    printf("\nPort number is:-%d", ntohs(clt_addr.sin_port));
 	                    int n=0;
 						for(n=0;(cp[n]->C_id)!=0;n++);
                         if(n>=0){
@@ -552,12 +554,12 @@ void s_Side(int server_port)
                         else{
                             exit(-1);
                         }			
-                     	/*Add new client information to the list*/
+                     	/*Add new clt information to the list*/
                         int m=0;
-						for(m=0;(lp[m]->list_id)!=0;m++);
+						for(m=0;(lp[m]->lt_id)!=0;m++);
                         if(m>=0)
 						{
-                        lp[m]->list_id=m+1;
+                        lp[m]->lt_id=m+1;
 						}
 						else
 						{
@@ -565,7 +567,7 @@ void s_Side(int server_port)
 						}
 						if(m>=0)
                         {
-							lp[m]->list_port=ntohs(client_addr.sin_port);
+							lp[m]->lt_port=ntohs(clt_addr.sin_port);
 						}
 						else
 						{
@@ -573,7 +575,7 @@ void s_Side(int server_port)
 						}
 						if(m>=0)
                         {
-							lp[m]->fd_socket=fdaccept;
+							lp[m]->fd_skt=fdaccept;
 						}
 						else
 						{
@@ -581,7 +583,7 @@ void s_Side(int server_port)
 						}
                         if(m>=0)
                         {
-							lp[m]->snd_msg=0;
+							lp[m]->sdMsg=0;
 						}
 						else
 						{
@@ -589,16 +591,16 @@ void s_Side(int server_port)
 						}
                         if(m>=0)
                         {
-							lp[m]->rcv_msg=0;
+							lp[m]->rMsg=0;
 						}
 						else
 						{
 							exit(-1);
 						}
-						strcpy(lp[m]->list_host_name,host);
-						strcpy(lp[m]->list_ip,ip);
+						strcpy(lp[m]->lt_ht_name,host);
+						strcpy(lp[m]->lt_ip,ip);
                         strcpy(lp[m]->state,"logged-in");
-                        sortinglist_port();
+                        sortinglt_port();
 						strcpy(server_data.cmd,"LOGLISTOVER");
 						if(send(fdaccept, &server_data, sizeof(server_data), 0) == sizeof(server_data))
 	                            {
@@ -610,9 +612,9 @@ void s_Side(int server_port)
 	                else
 	                {
 	                    /* Initialize buffer to receieve response */
-	                	memset(&rcv_data, '\0', sizeof(rcv_data));
+	                	memset(&rData, '\0', sizeof(rData));
 
-	                    if(recv(sock_index, &rcv_data, sizeof(rcv_data), 0) <= 0)// recv returns length of the message on successful completion.
+	                    if(recv(sock_index, &rData, sizeof(rData), 0) <= 0)// recv returns length of the message on successful completion.
 	                    {
 
 	                        printf("Remote Host terminated connection!\n");
@@ -621,22 +623,22 @@ void s_Side(int server_port)
 	                    }
 	                    else 
 	                    {
-	                    	//Process incoming data from existing clients here ...
-	                    	if((strcmp(rcv_data.cmd,outputs[3]))==0)
+	                    	//Process incoming data from existing clts here ...
+	                    	if((strcmp(rData.cmd,outputs[3]))==0)
       	                    {
 								int i=0;
 	                    		while(i<5)
 								{
-									int k=lp[i]->list_id;
+									int k=lp[i]->lt_id;
 									if(k==0)
 									{	
-										printf("\nError to receive data from clients\n");
+										printf("\nError to receive data from clts\n");
 									}
 									else
 									{
-										printf("%-5d%-35s%-20s%-8d\n", lp[i]->list_id, lp[i]->list_host_name, lp[i]->list_ip, lp[i]->list_port,lp[i]->fd_socket);
-                                        set_list_content(&send_list, lp[i]->list_id, lp[i]->list_host_name, lp[i]->list_ip, lp[i]->list_port);
-										send_list.list_port=lp[i]->list_port;
+										printf("%-5d%-35s%-20s%-8d\n", lp[i]->lt_id, lp[i]->lt_ht_name, lp[i]->lt_ip, lp[i]->lt_port,lp[i]->fd_skt);
+                                        set_lt_cnt(&send_list, lp[i]->lt_id, lp[i]->lt_ht_name, lp[i]->lt_ip, lp[i]->lt_port);
+										send_list.lt_port=lp[i]->lt_port;
 										strcpy(server_data.cmd,outputs[3]);
 										server_data.list_row=send_list;
 										if(send(sock_index, &server_data, sizeof(server_data), 0) == sizeof(server_data))
@@ -663,20 +665,20 @@ void s_Side(int server_port)
         }
     }
 }
-void set_list_content(struct list_content *lc, int id, char *host_name, char *ip, int port);
-void set_list_content(struct list_content *lc, int id, char *host_name, char *ip, int port) {
-    lc->list_id = id;
-    strcpy(lc->list_host_name, host_name);
-    strcpy(lc->list_ip, ip);
-    lc->list_port = port;
+void set_lt_cnt(struct lt_cnt *lc, int id, char *host_name, char *ip, int port);
+void set_lt_cnt(struct lt_cnt *lc, int id, char *host_name, char *ip, int port) {
+    lc->lt_id = id;
+    strcpy(lc->lt_ht_name, host_name);
+    strcpy(lc->lt_ip, ip);
+    lc->lt_port = port;
 }
 int bind_the_socket(int c_port);
 int connect_to_host(char *server_ip, int server_port, int c_port);
 file_des()
 {
-	FD_ZERO(&client_master_list); 
-    FD_ZERO(&client_watch_list);
-    FD_SET(STDIN, &client_master_list);
+	FD_ZERO(&clt_master_list); 
+    FD_ZERO(&clt_watch_list);
+    FD_SET(STDIN, &clt_master_list);
 }
 void author_output()
 {
@@ -700,22 +702,22 @@ int bind_the_socket(int c_port)
 	{
 		perror("Socket creation failed");
 	}
-  //setting up client socket
+  //setting up clt socket
     my_addrs.sin_family=AF_INET;
     my_addrs.sin_addr.s_addr=INADDR_ANY;
-	uint16_t client_port_network_byte_order = htons(c_port);
-	my_addrs.sin_port = client_port_network_byte_order;
+	uint16_t clt_port_network_byte_order = htons(c_port);
+	my_addrs.sin_port = clt_port_network_byte_order;
     int optval=1;
     setsockopt(fdsocket, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 	int k=bind(fdsocket, (struct  sockaddr*) &my_addrs, sizeof(struct sockaddr_in));
     if(k != 0)
     {
-		printf("\nTrouble in client port binding\n");
+		printf("\nTrouble in clt port binding\n");
 		return 0;
     }
     else
     {
-    	printf("\nThe client successfully bound to the port\n");
+    	printf("\nThe clt successfully bound to the port\n");
     	return 1;
     }
 }
@@ -739,17 +741,17 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
 	}
 	return fdsocket;
 }
-void sortinglist_port() {
+void sortinglt_port() {
     // Bubble sort to sort the list by port number
     for (int i = 0; i < 5 - 1; i++) {
         for (int j = 0; j < 5 - i - 1; j++) {
-            if (lp[j]->list_id == 0 || lp[j+1]->list_id == 0) {
+            if (lp[j]->lt_id == 0 || lp[j+1]->lt_id == 0) {
                 // One of the elements is empty, so swap is not needed
                 continue;
             }
-            if (lp[j]->list_port > lp[j+1]->list_port) {
+            if (lp[j]->lt_port > lp[j+1]->lt_port) {
                 // Swap the elements
-                struct client_info* temp = lp[j];
+                struct clt_info* temp = lp[j];
                 lp[j] = lp[j+1];
                 lp[j+1] = temp;
             }
@@ -758,15 +760,15 @@ void sortinglist_port() {
 }
 void print_stats();
 int isvalidIP(char *ip);
-void sortinglist_port();
+void sortinglt_port();
 void print_list()
 {
     int i=0;
 	while(i<5)
 	{
-		if(lp[i]->list_id!=0)
+		if(lp[i]->lt_id!=0)
 		{	
-			cse4589_print_and_log("%-5d%-35s%-20s%-8d\n", lp[i]->list_id, lp[i]->list_host_name, lp[i]->list_ip, lp[i]->list_port);
+			cse4589_print_and_log("%-5d%-35s%-20s%-8d\n", lp[i]->lt_id, lp[i]->lt_ht_name, lp[i]->lt_ip, lp[i]->lt_port);
 		}
         i++;
 	}
