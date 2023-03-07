@@ -85,25 +85,20 @@ int main(int argc, char **argv)
 	/*Start Here*/
 	
 	struct list_content hosts[6];
-	if(argc != 3) 
-	{
-		exit(-1);
-	}
-	if(*argv[1]=='c')
-	{
-		cSide(atoi(argv[2]));
-		
-	}
-	else if(*argv[1]=='s')
-	{
-		s_Side(atoi(argv[2]));
-	}
-	else
-	{
-		//Exiting the application
-		exit(-1);
-	}
-	return 0;
+    int port = atoi(argv[2]);
+    char mode = *argv[1];
+
+    switch (mode) {
+        case 'c':
+            cSide(port);
+            break;
+        case 's':
+            s_Side(port);
+            break;
+        default:
+            exit(-1);
+    }
+    	return 0;
 }
 //client side
 void cSide(int client_port);
