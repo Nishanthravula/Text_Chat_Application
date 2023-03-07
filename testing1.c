@@ -519,13 +519,13 @@ fflush(stdout);
 
         /* select() system call. This will BLOCK */
         selret = select(head_socket + 1, &watch_list, NULL, NULL, NULL);
-        if(selret < 0)
+        if(selret <= 0)
         {
             perror("select failed.");
-            exit(1);
+            exit(-1);
         }
-
-        if(selret > 0)
+        // if(selret > 0)
+        else
         {
         	 for(sock_index=0; sock_index<=head_socket; sock_index+=1)
             {
