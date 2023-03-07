@@ -136,14 +136,14 @@ void cSide(int client_port)
 		memcpy(&client_watch_list, &client_master_list, sizeof(client_master_list));
         /* select() system call. This will BLOCK */
         selret = select(client_head_socket + 1, &client_watch_list, NULL, NULL, NULL);
-        if(selret < 0)
+        if(selret <= 0)
         {
             perror("select failed.");
             exit(-1);
         }
 
         // if(selret > 0)
-		else
+        else
         {
             /* Loop through socket descriptors to check which ones are ready */
             for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
@@ -355,34 +355,6 @@ void cSide(int client_port)
 
 				        }
 				        
-						
-						// else if((strcmp(msg,"LOGOUT"))==0&&
-
-						// 		loggedin==1)
-
-						// {
-
-						// 	strcpy(data.cmd,"LOGOUT");
-
-						// 	if(send(server, &data, sizeof(data), 0) == sizeof(data))
-
-						// 	{
-
-						// 		printf("[LOGOUT:SUCCESS]\n");
-
-						// 		loggedin=0;
-
-						// 		int bind_port=bind_the_socket(client_port);
-
-						// 		server=close(server);
-
-						// 	}
-
-						// 	cse4589_print_and_log("[LOGOUT:END]\n");	
-
-						// }
-						
-
 						else if((strcmp(msg,outputs[6]))==0)
 
 						{
@@ -504,12 +476,28 @@ void s_Side(int server_port)
 	// for(int i=0;i<5;i++){
 	int j=0;
 	while(j<5){
-		cp[j]=(struct list_content *)malloc(sizeof(struct client_list));
-		cp[j]->C_id=0;
-		strcpy(cp[j]->ip[0],"null");
-		strcpy(cp[j]->ip[1],"null");
-		strcpy(cp[j]->ip[2],"null");
-		strcpy(cp[j]->ip[3],"null");
+        if(j>=0){
+            cp[j]=(struct list_content *)malloc(sizeof(struct client_list));
+        }
+        if(j>=0){
+            cp[j]->C_id=0;
+        }
+		if(j>=0){
+            strcpy(cp[j]->ip[0],"null");
+        }    
+		if(j>=0){
+            strcpy(cp[j]->ip[1],"null");
+        }    
+		if(j>=0){
+            strcpy(cp[j]->ip[2],"null");
+        }    
+		if(j>=0){
+		    strcpy(cp[j]->ip[3],"null");
+        }
+        else{
+            exit(-1);
+        }
+
 		j++;
 	}
 
