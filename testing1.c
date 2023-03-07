@@ -10,13 +10,11 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <sys/socket.h>
-// #include <sys/un.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
-//#include <ifaddrs.h>
 #include <unistd.h>
-//#include <errno.h>
+
 
 
 #define MSG_SIZE 256
@@ -100,6 +98,7 @@ int main(int argc, char **argv)
     }
     	return 0;
 }
+
 //client side
 void cSide(int client_port);
 void s_Side(int server_port);
@@ -107,7 +106,7 @@ void s_Side(int server_port);
 void cSide(int client_port)
 {
 	int bind_port=bind_the_socket(client_port);
-	int loggedin=0;//using as bool
+	int loggedin=0;
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT","LOGOUT","SUCCESS"};
 	if(bind_port==0)
 	{
@@ -115,7 +114,7 @@ void cSide(int client_port)
 	}
 
 	printf("\ninside client side");
-	int server=0;//SOCKET FOR SERVER COMMUNICATION
+	int server=0;
 	int selret;
 	int j=0;
 	struct client_msg data;
@@ -129,7 +128,7 @@ void cSide(int client_port)
 		client_head_socket=server;
 
 		memcpy(&client_watch_list, &client_master_list, sizeof(client_master_list));
-        /* select() system call. This will BLOCK */
+
         selret = select(client_head_socket + 1, &client_watch_list, NULL, NULL, NULL);
         if(selret <= 0)
         {
@@ -137,21 +136,20 @@ void cSide(int client_port)
             exit(-1);
         }
 
-        // if(selret > 0)
         else
         {
-            /* Loop through socket descriptors to check which ones are ready */
+
             for(client_sock_index=0; client_sock_index<=client_head_socket; client_sock_index+=1)
             {
                 if(FD_ISSET(client_sock_index, &client_watch_list))
                 {
                 	 if (client_sock_index == STDIN)
                     {
-				        char *msg = (char*) malloc(sizeof(char)*MSG_SIZE);//MSG_SIZE=256
+				        char *msg = (char*) malloc(sizeof(char)*MSG_SIZE);
 				    	memset(msg, '\0', MSG_SIZE);
-						if(fgets(msg, MSG_SIZE-1, stdin) == NULL) //Mind the newline character that will be written to msg
+						if(fgets(msg, MSG_SIZE-1, stdin) == NULL) 
 							exit(-1);
-						/*to get rid of '\n' added by fgets*/
+						
 						int len=strlen(msg);
 						msg[len-1]='\0';
 
@@ -237,8 +235,6 @@ void cSide(int client_port)
 							}
 
 							ip[j]='\0';
-
-							//printf("\n your ip add is %s",ip);
 
 							if((isvalidIP(ip))==1)
 
@@ -394,9 +390,8 @@ void cSide(int client_port)
 							{	
 								cse4589_print_and_log("[%s:END]\n",outputs[3]);
 							}
-							
-							
-							fflush(stdout);//there will be no waiting for sending message
+										
+							fflush(stdout);
 						}
                     } 
                     fflush(stdout);	
@@ -411,7 +406,6 @@ void s_Side(int server_port)
 {
 	const char *outputs[7] = {"AUTHOR", "IP", "PORT","LIST","LOGIN","REFRESH","EXIT"};
 	printf("\n Inside server side with port %d\n", server_port);
-	// int server_socket, head_socket, selret, sock_index, fdaccept=0, caddr_len, send_socket=0;
 	int head_socket;
 	int selret;
 	int sock_index;
@@ -419,27 +413,15 @@ void s_Side(int server_port)
 	int caddr_len;
 	int send_socket = 0;
     int server_socket;
-	// struct server_msg server_data;
-	// struct list_content send_list;
-	/*our defined client message*/
-	// struct client_msg rcv_data;
-    /* Socket address*/
 	struct sockaddr_in server_addr, client_addr;
-
-    /*File discriptor list*/
 	fd_set master_list, watch_list;
-
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
-	fdsocket=server_socket;// bcoz fdsocket is used by myport function
+	fdsocket=server_socket;
     (fdsocket >= 0) ? printf("\nSocket created successfully\n") : perror("socket cannot be created");
-
-	/* Fill up sockaddr_in struct */
 	bzero(&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     server_addr.sin_port = htons(server_port);
-
-    /* bind*/
 	int k = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if(k >= 0 )
 	{
@@ -449,7 +431,6 @@ void s_Side(int server_port)
 	{
 		perror("Binding the socket failed");
     }
-    /* Listen */
 	int m = listen(server_socket, BACKLOG);
     if(m >= 0)
 	{
@@ -459,8 +440,6 @@ void s_Side(int server_port)
 	{
 		perror("Listening on port is not possible");
     }
-    /*Initializing list*/
-    // for(int i=0;i<5;i++)
 	int i =0;
 	while(i<5)
     {
@@ -468,7 +447,6 @@ void s_Side(int server_port)
     	lp[i]->list_id=0; 	
 		i++;
     }
-	// for(int i=0;i<5;i++){
 	int j=0;
 	while(j<5){
         if(j>=0){
@@ -495,31 +473,22 @@ void s_Side(int server_port)
 
 		j++;
 	}
-
-    /* Zero select FD sets */
-    FD_ZERO(&master_list);//Initializes the file descriptor set fdset to have zero bits for all file descriptors. 
+    FD_ZERO(&master_list);
     FD_ZERO(&watch_list);
-    
-    /* Register the listening socket */
-    FD_SET(server_socket, &master_list);//FD stands for file discriptor
-    /* Register STDIN */
+    FD_SET(server_socket, &master_list);
     FD_SET(STDIN, &master_list);
-
     head_socket = server_socket;
 
     for(;;)
     {
-fflush(stdout);	
+        fflush(stdout);	
         memcpy(&watch_list, &master_list, sizeof(master_list));
-
-        /* select() system call. This will BLOCK */
         selret = select(head_socket + 1, &watch_list, NULL, NULL, NULL);
         if(selret <= 0)
         {
             perror("select failed.");
             exit(-1);
         }
-        // if(selret > 0)
         else
         {
         	 for(sock_index=0; sock_index<=head_socket; sock_index+=1)
@@ -528,19 +497,14 @@ fflush(stdout);
                 memset(&server_data, '\0', sizeof(server_data));//mera
                 if(FD_ISSET(sock_index, &watch_list))
                 {
-	        		/* Check if new command on STDIN */
 	                if (sock_index == STDIN)
 	                {
 	                	char *cmd = (char*) malloc(sizeof(char)*CMD_SIZE);
 	                	memset(cmd, '\0', CMD_SIZE);
-						if(fgets(cmd, CMD_SIZE-1, stdin) == NULL) //Mind the newline character that will be written to cmd
+						if(fgets(cmd, CMD_SIZE-1, stdin) == NULL)
 							exit(-1);
-
-						//printf("\nI got: %s\n", cmd);
 						int len=strlen(cmd);
-						cmd[len-1]='\0';// to remove \n from the msg
-						
-						//Process PA1 commands here ...cd 
+						cmd[len-1]='\0';
 						if((strcmp(cmd,outputs[0]))==0)
 						{
 							author_output();
@@ -561,39 +525,25 @@ fflush(stdout);
 	                    	cse4589_print_and_log("[%s:SUCCESS]\n",outputs[3]);
 	                        print_list();
 	                        cse4589_print_and_log("[%s:END]\n",outputs[3]);
-	                    }
-	                    
-	                    
+	                    }     
 						free(cmd);
 	                }
-	                /* Check if new client is requesting connection */
 	                else if(sock_index == server_socket)
 	                {
 	                    caddr_len = sizeof(client_addr);
-	                    fdaccept = accept(server_socket, (struct sockaddr *)&client_addr, &caddr_len);// on success accept returns an integer, that is the file descriptor for the accepted socket.
-	                    //printf("\n fdaccept index value:-%d",fdaccept);
-
+	                    fdaccept = accept(server_socket, (struct sockaddr *)&client_addr, &caddr_len);
                         fdaccept >= 0 ? printf("Accepted") : perror("Accept failed.");
 	                    char ip[INET_ADDRSTRLEN];
 	                    inet_ntop(AF_INET,&client_addr.sin_addr.s_addr,ip, INET_ADDRSTRLEN);
-
 						printf("\nRemote Host connected! with IP:-%s \n", ip);                        
 						ntohs(client_addr.sin_port);
-	                    /* Add to watched socket list */
 	                    FD_SET(fdaccept, &master_list);
-
                         head_socket = (fdaccept > head_socket) ? fdaccept : head_socket;
-
 	                    char host[1024];
 	                    getnameinfo((struct sockaddr *)&client_addr, caddr_len,host, sizeof(host), 0,0,0);
 	                    printf("\nhost name is:-%s", host);
 	                    printf("\nPort number is:-%d", ntohs(client_addr.sin_port));
-	                    /*Add blocking information into the available structure*/
 	                    int n=0;
-						// while((cp[n]->C_id)!=0)
-                        // {
-                        // 	n++;
-                        // }
 						for(n=0;(cp[n]->C_id)!=0;n++);
                         if(n>=0){
                             cp[n]->C_id=n+1;
@@ -601,23 +551,10 @@ fflush(stdout);
                         }
                         else{
                             exit(-1);
-                        }
-						
+                        }			
                      	/*Add new client information to the list*/
                         int m=0;
-                        // while((lp[m]->list_id)!=0)
-                        // {
-                        // 	m++;
-                        // }
 						for(m=0;(lp[m]->list_id)!=0;m++);
-                        // lp[m]->list_id=m+1;
-                        // lp[m]->list_port=ntohs(client_addr.sin_port);
-                        // lp[m]->fd_socket=fdaccept;
-                        // lp[m]->snd_msg=0;
-                        // lp[m]->rcv_msg=0;
-                        // strcpy(lp[m]->state,"logged-in");
-                        // strcpy(lp[m]->list_ip,ip);
-                        // strcpy(lp[m]->list_host_name,host);
                         if(m>=0)
 						{
                         lp[m]->list_id=m+1;
@@ -661,11 +598,7 @@ fflush(stdout);
 						strcpy(lp[m]->list_host_name,host);
 						strcpy(lp[m]->list_ip,ip);
                         strcpy(lp[m]->state,"logged-in");
-
-                        //send list of currently loged in clients to the client
                         sortinglist_port();
-
-						//INFORMING THAT LOGIN IS OVER
 						strcpy(server_data.cmd,"LOGLISTOVER");
 						if(send(fdaccept, &server_data, sizeof(server_data), 0) == sizeof(server_data))
 	                            {
@@ -673,7 +606,6 @@ fflush(stdout);
 									printf("Done!\n");
 	                            }
 							fflush(stdout);	
-						//end 
 	                }
 	                else
 	                {
@@ -682,11 +614,9 @@ fflush(stdout);
 
 	                    if(recv(sock_index, &rcv_data, sizeof(rcv_data), 0) <= 0)// recv returns length of the message on successful completion.
 	                    {
-	                    	/*Remove from the contetn_list as well*/
-	                    	// remove_from_list(sock_index);
-	                        //close(sock_index);
+
 	                        printf("Remote Host terminated connection!\n");
-	                        /* Remove from watched list */
+
 	                        FD_CLR(sock_index,&master_list);
 	                    }
 	                    else 
@@ -705,12 +635,8 @@ fflush(stdout);
 									else
 									{
 										printf("%-5d%-35s%-20s%-8d\n", lp[i]->list_id, lp[i]->list_host_name, lp[i]->list_ip, lp[i]->list_port,lp[i]->fd_socket);
-										
-										send_list.list_id=lp[i]->list_id;
-										strcpy(send_list.list_host_name,lp[i]->list_host_name);
-										strcpy(send_list.list_ip,lp[i]->list_ip);
+                                        set_list_content(&send_list, lp[i]->list_id, lp[i]->list_host_name, lp[i]->list_ip, lp[i]->list_port);
 										send_list.list_port=lp[i]->list_port;
-
 										strcpy(server_data.cmd,outputs[3]);
 										server_data.list_row=send_list;
 										if(send(sock_index, &server_data, sizeof(server_data), 0) == sizeof(server_data))
@@ -726,8 +652,7 @@ fflush(stdout);
 	                            {
 									printf("Done!\n");
 	                            }
-	                            fflush(stdout);	
-								
+	                            fflush(stdout);									
 	                    	}
 							fflush(stdout);
 
@@ -738,10 +663,21 @@ fflush(stdout);
         }
     }
 }
-
+void set_list_content(struct list_content *lc, int id, char *host_name, char *ip, int port);
+void set_list_content(struct list_content *lc, int id, char *host_name, char *ip, int port) {
+    lc->list_id = id;
+    strcpy(lc->list_host_name, host_name);
+    strcpy(lc->list_ip, ip);
+    lc->list_port = port;
+}
 int bind_the_socket(int c_port);
 int connect_to_host(char *server_ip, int server_port, int c_port);
-
+file_des()
+{
+	FD_ZERO(&client_master_list); 
+    FD_ZERO(&client_watch_list);
+    FD_SET(STDIN, &client_master_list);
+}
 void author_output()
 {
 	const char *a[2] = {"nravula","AUTHOR"};
@@ -749,21 +685,13 @@ void author_output()
 	cse4589_print_and_log("I, %s, have read and understood the course academic integrity policy.\n",a[0]);
 	cse4589_print_and_log("[%s:END]\n",a[1]);
 }
-
 void myport();
 void IP_Add();
 void print_list();
-
 int bind_the_socket(int c_port)
 {
 	struct sockaddr_in my_addrs;
 	fdsocket = socket(AF_INET, SOCK_STREAM, 0);// return socket file descriptor
-    // if(fdsocket < 0)
-    // {
-    //    perror("Failed to create socket");
-    //    return 0;
-    // }
-
 	if(fdsocket > 0)
 	{
 		printf("Socked created successfully");
@@ -772,21 +700,14 @@ int bind_the_socket(int c_port)
 	{
 		perror("Socket creation failed");
 	}
-
-
-    //setting up client socket
+  //setting up client socket
     my_addrs.sin_family=AF_INET;
     my_addrs.sin_addr.s_addr=INADDR_ANY;
-    // my_addrs.sin_port=htons(c_port);
-
 	uint16_t client_port_network_byte_order = htons(c_port);
 	my_addrs.sin_port = client_port_network_byte_order;
-
     int optval=1;
     setsockopt(fdsocket, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
-
 	int k=bind(fdsocket, (struct  sockaddr*) &my_addrs, sizeof(struct sockaddr_in));
-
     if(k != 0)
     {
 		printf("\nTrouble in client port binding\n");
@@ -798,21 +719,15 @@ int bind_the_socket(int c_port)
     	return 1;
     }
 }
-
-
 int connect_to_host(char *server_ip, int server_port, int c_port)
 {
-    // int len;
     struct sockaddr_in remote_server_addr;
-
     bzero(&remote_server_addr, sizeof(remote_server_addr));
     remote_server_addr.sin_family = AF_INET;
-    inet_pton(AF_INET, server_ip, &remote_server_addr.sin_addr);//inet_pton - convert IPv4 and IPv6 addresses from text to binary form
-    // remote_server_addr.sin_port = htons(server_port);//function converts the unsigned short integer hostshort from host byte order to network byte order.
-
+	//inet_pton - convert IPv4 and IPv6 addresses from text to binary form
+    inet_pton(AF_INET, server_ip, &remote_server_addr.sin_addr);
 	uint16_t server_port_network_byte_order = htons(server_port);
 	remote_server_addr.sin_port = server_port_network_byte_order;
-
     int k=connect(fdsocket, (struct sockaddr*)&remote_server_addr, sizeof(remote_server_addr));
 	if(k>=0)
 	{
@@ -824,9 +739,6 @@ int connect_to_host(char *server_ip, int server_port, int c_port)
 	}
 	return fdsocket;
 }
-
-
-
 void sortinglist_port() {
     // Bubble sort to sort the list by port number
     for (int i = 0; i < 5 - 1; i++) {
@@ -874,15 +786,11 @@ void myport()
 		cse4589_print_and_log("%s:%d\n", outputs[0],ntohs(portvalue.sin_port));
 	}
 }
-
-
-
 int isvalidIP(char *ip)
 {
 	struct sockaddr_in temp;
 	return inet_pton(AF_INET, ip, &temp.sin_addr) == 1;
 }
-
 void IP_Add()
 {
     const char* google_dns_server = "8.8.8.8";
@@ -893,9 +801,7 @@ void IP_Add()
 	serv.sin_family = AF_INET;
     serv.sin_addr.s_addr = inet_addr( google_dns_server );
     serv.sin_port = htons( dns_port );
-
-    int sock = socket ( AF_INET, SOCK_DGRAM, 0);
-     
+    int sock = socket ( AF_INET, SOCK_DGRAM, 0);  
     if(sock < 0)
     {
         perror("Socket error");
@@ -931,9 +837,3 @@ void IP_Add()
     close(sock);
 }
 
-file_des()
-{
-	FD_ZERO(&client_master_list); 
-    FD_ZERO(&client_watch_list);
-    FD_SET(STDIN, &client_master_list);
-}
